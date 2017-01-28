@@ -1,47 +1,39 @@
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
+# =============== #
+# Unity generated #
+# =============== #
+[Bb]uild/*
+[Ll]ibrary/*
+[Oo]bj/*
+[Tt]emp/*
+[Uu]nity[Gg]enerated]/*
+sysinfo.txt
+/*.stackdump
+*.ppk
 
-# Folder config file
-Desktop.ini
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/*
+.vs/*
+/*.booproj
+/*.csproj
+/*.pidb
+/*.pidb.meta
+/*.sln*
+/*.suo
+/*.svd
+/*.unityproj
+/*.user
+/*.userprefs
 
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
+# ============ #
+# OS generated #
+# ============ #
+[Tt]humbs.db
 
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
+# =============== #
+# Users generated #
+# =============== #
+# ...
 
-# Windows shortcuts
-*.lnk
-
-# =========================
-# Operating System Files
-# =========================
-
-# OSX
-# =========================
-
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
+syntax: glob
