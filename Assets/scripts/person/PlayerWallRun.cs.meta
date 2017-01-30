@@ -1,10 +1,6 @@
 fileFormatVersion: 2
-guid: 5c2d84226fbbaf94e9c1451f1c39b06a
-labels:
-- Not
-- Fully
-- Implemented
-timeCreated: 1485696920
+guid: 67f96cdb9a3cacc4bac323b82f3ffd71
+timeCreated: 1485712970
 licenseType: Free
 MonoImporter:
   serializedVersion: 2

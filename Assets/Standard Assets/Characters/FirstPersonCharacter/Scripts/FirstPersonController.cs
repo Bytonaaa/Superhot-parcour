@@ -30,12 +30,20 @@ namespace UnityStandardAssets.Characters.FirstPerson
         [SerializeField] private AudioClip[] m_FootstepSounds;    // an array of footstep sounds that will be randomly selected from.
         [SerializeField] private AudioClip m_JumpSound;           // the sound played when character leaves the ground.
         [SerializeField] private AudioClip m_LandSound;           // the sound played when character touches back on ground.
-  
+
+
+        [SerializeField] private float timeWallRunWithNoButton = 0.35f;
+        private float _timeWallRun;
+        private bool jumpButtonReleased;
+
         private Camera m_Camera;
         private bool m_Jump;
         private float m_YRotation;
         private Vector2 m_Input;
         private Vector3 m_MoveDir = Vector3.zero;
+
+        public Vector3 MoveDirection { get { return m_MoveDir; } }
+
         private CharacterController m_CharacterController;
         private CollisionFlags m_CollisionFlags;
         private bool m_PreviouslyGrounded;
@@ -44,6 +52,30 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private float m_NextStep;
         private bool m_Jumping;
         private AudioSource m_AudioSource;
+
+
+        private bool _wallRun;
+
+        public bool WallRun
+        {
+            get
+            {
+                return _wallRun;
+            }
+            set
+            {
+                _wallRun = value;
+                if (value)
+                {
+                    DoubleJump = true;
+                    _timeWallRun = timeWallRunWithNoButton;
+                    jumpButtonReleased = false;
+                }
+            }
+        }
+
+        public Vector3 WallRunDirection { get; set; }
+        private bool DoubleJump;
 
         // Use this for initialization
         private void Start()
@@ -56,20 +88,30 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_StepCycle = 0f;
             m_NextStep = m_StepCycle/2f;
             m_Jumping = false;
+            DoubleJump = true;
             m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
         }
 
+        public void setJump()
+        {
+            if (WallRun || (!m_Jump && (DoubleJump || m_CharacterController.isGrounded)))
+            {
+                m_Jump = true;
+            }
+        }
 
         // Update is called once per frame
         private void Update()
         {
             RotateView();
             // the jump state needs to read here to make sure it is not missed
-            if (!m_Jump && m_CharacterController.isGrounded)
+            if (WallRun || (!m_Jump && (DoubleJump || m_CharacterController.isGrounded)))
             {
                 m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
             }
+            jumpButtonReleased = jumpButtonReleased ? jumpButtonReleased : CrossPlatformInputManager.GetButtonUp("Jump");
+
 
             if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
             {
@@ -77,6 +119,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
                 PlayLandingSound();
                 m_MoveDir.y = 0f;
                 m_Jumping = false;
+                DoubleJump = true;
             }
             if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
             {
@@ -105,24 +148,53 @@ namespace UnityStandardAssets.Characters.FirstPerson
             // get a normal for the surface that is being touched to move along it
             RaycastHit hitInfo;
             Physics.SphereCast(transform.position, m_CharacterController.radius, Vector3.down, out hitInfo,
-                               m_CharacterController.height/2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
+                m_CharacterController.height/2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
             desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
 
             m_MoveDir.x = desiredMove.x*speed;
             m_MoveDir.z = desiredMove.z*speed;
 
-
             if (m_CharacterController.isGrounded)
             {
                 m_MoveDir.y = -m_StickToGroundForce;
-
                 if (m_Jump)
                 {
-                    m_MoveDir.y = m_JumpSpeed;
-                    PlayJumpSound();
-                    m_Jump = false;
-                    m_Jumping = true;
+                    Jump();
                 }
+            }
+            else if (WallRun)
+            {
+                
+                if (!jumpButtonReleased)
+                {
+                    m_MoveDir = WallRunDirection*speed;
+                }
+                else if (_timeWallRun <= 0f)
+                {
+                    WallRun = false;
+                }
+                else
+                {
+                    _timeWallRun -= Time.fixedDeltaTime;
+                    if (m_Jump)
+                    {
+                        Jump();
+                        WallRun = false;
+                    }
+                }
+            }
+            else if (DoubleJump && m_Jump)
+            {
+                if (m_MoveDir.y < 1)
+                {
+                    Jump();
+                    DoubleJump = false;
+                }
+                else
+                {
+                    m_Jump = false;
+                }
+
             }
             else
             {
@@ -136,7 +208,14 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_MouseLook.UpdateCursorLock();
         }
 
+        private void Jump()
+        {
+            m_MoveDir.y = m_JumpSpeed;
+            PlayJumpSound();
+            m_Jump = false;
+            m_Jumping = true;
 
+        }
         private void PlayJumpSound()
         {
             m_AudioSource.clip = m_JumpSound;

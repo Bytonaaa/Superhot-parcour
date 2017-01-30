@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityStandardAssets.Characters.FirstPerson;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerTurn : MonoBehaviour
 {
 
     [SerializeField] private float TimeToTurn = 0.1f;
-    [SerializeField] private Transform camera;
+    [SerializeField] private Transform defaultCamera;
 
     private bool flag = true;
     private FirstPersonController fpc;
+
     // Use this for initialization
     void Start()
     {
@@ -23,7 +25,7 @@ public class PlayerTurn : MonoBehaviour
             throw new Exception("No First Person Controller");
         }
 
-        camera = Camera.main.transform;
+        defaultCamera = Camera.main.transform;
         flag = true;
     }
 
@@ -34,35 +36,38 @@ public class PlayerTurn : MonoBehaviour
         if (flag && GetTurnButton())
         {
             flag = false;
-            Vector3 axis = camera.up;
-            StartCoroutine(Turning(camera.forward, 180f, axis));
+            Vector3 axis = defaultCamera.up;
+            StartCoroutine(Turning(defaultCamera.forward, 180f, axis));
         }
     }
 
     private bool GetTurnButton()
     {
-        return Input.GetKeyUp(KeyCode.LeftControl);
+        return Input.GetKey(KeyCode.V);
     }
 
     private IEnumerator Turning(Vector3 forwardFrom, float angle, Vector3 axis)
     {
+        fpc.setJump();
         float time = 0f;
         Vector3 temp;
+        Quaternion lastTransformRotation = transform.rotation;
         while (time <= TimeToTurn)
         {
             temp = Quaternion.AngleAxis(180*(time/TimeToTurn), axis)*forwardFrom;
             temp.y = forwardFrom.y;
-            camera.LookAt(camera.position + temp);
+            defaultCamera.LookAt(defaultCamera.position + temp);
             
-            fpc.MouseLook.Init(transform, camera.transform);
+            fpc.MouseLook.Init(transform, defaultCamera.transform);
             yield return new WaitForEndOfFrame();
             time += Time.deltaTime;
         }
         temp = Quaternion.AngleAxis(180, axis) * forwardFrom;
         temp.y = forwardFrom.y;
-        transform.rotation *= Quaternion.AngleAxis(180, Vector3.up);
-        camera.LookAt(camera.position + temp);
-        fpc.MouseLook.Init(transform, camera.transform);
+        transform.rotation = lastTransformRotation * Quaternion.AngleAxis(180, Vector3.up);
+        defaultCamera.LookAt(defaultCamera.position + temp);
+        fpc.MouseLook.Init(transform, defaultCamera.transform);
         flag = true;
+        
     }
 }
