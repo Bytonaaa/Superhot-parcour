@@ -10,7 +10,7 @@ public class PlayerTurn : MonoBehaviour
 {
 
     [SerializeField] private float TimeToTurn = 0.1f;
-    [SerializeField] private Transform defaultCamera;
+    private Transform defaultCamera;
 
     private bool flag = true;
     private FirstPersonController fpc;
