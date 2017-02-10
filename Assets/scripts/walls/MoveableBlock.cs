@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+[RequireComponent(typeof(Rigidbody))]
 public class MoveableBlock : MonoBehaviour
 {
 
@@ -17,18 +19,27 @@ public class MoveableBlock : MonoBehaviour
     private bool turnBack = false;
     private bool moved;
 
-	void Start () {
-	    if (fromStart)
-	    {
-	        StartMove();
-	    }
-	}
+    void Start()
+    {
+        var rigid = GetComponent<Rigidbody>();
+        if (rigid == null)
+        {
+            rigid = gameObject.AddComponent<Rigidbody>();
+        }
 
-    void Update()
+        rigid.isKinematic = true;
+        rigid.useGravity = false;
+        if (fromStart)
+        {
+            StartMove();
+        }
+    }
+
+    void FixedUpdate()
     {
         if (moved)
         {
-            Move(Time.deltaTime);
+            Move(Time.fixedDeltaTime);
         }
     }
 

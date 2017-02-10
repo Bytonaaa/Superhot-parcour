@@ -22,16 +22,27 @@ public class SlowMotionTime : MonoBehaviour
 	}
 	
 	// Update is called once per frame
+
+    private bool slowed = false;
 	void Update () {
 	    if (controller.isGrounded && controller.velocity.sqrMagnitude <= minSpeed)
 	    {
-	        Time.timeScale = mainTimeScale * timeScale;
-	        //Time.fixedDeltaTime = 0.02f*Time.timeScale;
+	        if (!slowed)
+	        {
+	            Time.timeScale = mainTimeScale*timeScale;
+	            Time.fixedDeltaTime = 0.02f*mainTimeScale*timeScale;
+	            slowed = true;
+	        }
 	    }
 	    else
 	    {
-	        Time.timeScale = mainTimeScale;
-	        //Time.fixedDeltaTime = 0.02f*Time.timeScale;
+	        if (slowed)
+	        {
+                
+	            Time.timeScale = mainTimeScale;
+	            Time.fixedDeltaTime = 0.02f*mainTimeScale;
+	            slowed = false;
+	        }
 	    }
-	}
+    }
 }

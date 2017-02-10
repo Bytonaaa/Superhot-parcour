@@ -19,16 +19,18 @@ public class NeonEffect : MonoBehaviour
 
     public void setNeonLine()
     {
-        Debug.Log(lineSize);
-
         meshFilter = GetComponent<MeshFilter>();
         if (meshFilter == null)
         {
             throw new Exception("No meshFilter on object");
         }
+        GetComponent<MeshRenderer>().material = Resources.Load("materials/BlockMaterial") as Material;
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         meshFilter.sharedMesh = Instantiate(cube.GetComponent<MeshFilter>().sharedMesh);
         DestroyImmediate(cube);
+
+        
+
         Mesh mesh = meshFilter.sharedMesh;
 
 
