@@ -24,6 +24,10 @@ public class MoveCamera : MonoBehaviour
 	    Rtemp = transform.right;
 	    mainPos = transform.position;
 	    mainCenterPosition = center.position;
+
+
+        Cursor.lockState = CursorLockMode.None;
+	    Cursor.visible = true;
 	}
 	
 	// Update is called once per frame
@@ -42,4 +46,10 @@ public class MoveCamera : MonoBehaviour
         transform.position = mainPos + (center.position - mainCenterPosition) + R * r * Mathf.Sin(phi) + Rtemp * r * Mathf.Cos(phi);
         transform.LookAt(center);
 	}
+
+    void OnDestroy()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 }
