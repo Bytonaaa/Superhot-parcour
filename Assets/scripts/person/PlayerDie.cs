@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class PlayerDie : MonoBehaviour
 {
-
-
-    [SerializeField] private float minYPos = -10f;
-
+    private const float minYPos = -100f;
 	// Use this for initialization
 	void Start () {
 		

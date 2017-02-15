@@ -19,11 +19,13 @@ public class SlowMotionTime : MonoBehaviour
 	        throw new Exception("No characterControoller");
 	    }
         mainTimeScale = Time.timeScale;
+        slowed = false;
 	}
 	
 	// Update is called once per frame
 
     private bool slowed = false;
+
 	void Update () {
 	    if (controller.isGrounded && controller.velocity.sqrMagnitude <= minSpeed)
 	    {
@@ -44,5 +46,16 @@ public class SlowMotionTime : MonoBehaviour
 	            slowed = false;
 	        }
 	    }
+    }
+
+
+    void OnDestroy()
+    {
+        if (slowed)
+        {
+
+            Time.timeScale = mainTimeScale;
+            Time.fixedDeltaTime = 0.02f * mainTimeScale;
+        }
     }
 }

@@ -13,11 +13,17 @@ public class NeonEffect : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-	    setNeonLine();
+	    Reset();
 	}
 
+    public void Reset(bool fromDebug = false)
+    {
+        setNeonLine(lineColor, fillColor, lineSize, fromDebug);
+    }
 
-    public void setNeonLine()
+
+
+    public void setNeonLine(Color _lineColor, Color _fillColor, float _lineSize, bool fromDebug = false)
     {
         meshFilter = GetComponent<MeshFilter>();
         if (meshFilter == null)
@@ -27,9 +33,15 @@ public class NeonEffect : MonoBehaviour
         GetComponent<MeshRenderer>().material = Resources.Load("materials/BlockMaterial") as Material;
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         meshFilter.sharedMesh = Instantiate(cube.GetComponent<MeshFilter>().sharedMesh);
-        DestroyImmediate(cube);
+        if (fromDebug)
+        {
+            DestroyImmediate(cube);
+        }
+        else
+        {
+            Destroy(cube);
+        }
 
-        
 
         Mesh mesh = meshFilter.sharedMesh;
 
@@ -71,7 +83,7 @@ public class NeonEffect : MonoBehaviour
             Vector3 temp = ((vertex[triangles[(index + 1) % 3 + i]] - vertex[triangles[index]]) +
                             (vertex[triangles[(index + 2) % 3 + i]] - vertex[triangles[index]]));
             temp.Normalize();
-            temp *= lineSize;
+            temp *= _lineSize;
             temp.x /= transform.lossyScale.x;
             temp.y /= transform.lossyScale.y;
             temp.z /= transform.lossyScale.z;
@@ -94,7 +106,7 @@ public class NeonEffect : MonoBehaviour
                     Vector3 t = ((vertex[triangles[index]] - vertex[triangles[(index + j) % 3 + i]]) +
                                  (vertex[triangles[(index + j + (j == 1 ? 1 : 2)) % 3 + i]] - vertex[triangles[index]]));
                     t.Normalize();
-                    t *= lineSize;
+                    t *= _lineSize;
                     t.x /= transform.lossyScale.x;
                     t.y /= transform.lossyScale.y;
                     t.z /= transform.lossyScale.z;
@@ -125,14 +137,14 @@ public class NeonEffect : MonoBehaviour
 
             colors[triangles[i]] = colors[triangles[i + 1]] = colors[triangles[i + 2]] =
                 colors[triangles[i] + vertexSize] =
-                    colors[triangles[i + 1] + vertexSize] = colors[triangles[i + 2] + vertexSize] = lineColor;
+                    colors[triangles[i + 1] + vertexSize] = colors[triangles[i + 2] + vertexSize] = _lineColor;
 
             for (int j = 0; j < 3; ++j)
             {
                 vertex.Add(vertex[triangles[i + j] + vertexSize]);
                 newTriangles.Add(vertex.Count - 1);
                 normals.Add(normals[triangles[i + j] + vertexSize]);
-                colors.Add(fillColor);
+                colors.Add(_fillColor);
             }
 
         }

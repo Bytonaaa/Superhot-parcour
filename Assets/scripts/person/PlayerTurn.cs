@@ -15,6 +15,8 @@ public class PlayerTurn : MonoBehaviour
     private bool flag = true;
     private FirstPersonController fpc;
 
+    private float minTime = 0.4f;
+    private float _time;
     // Use this for initialization
     void Start()
     {
@@ -27,17 +29,24 @@ public class PlayerTurn : MonoBehaviour
 
         defaultCamera = Camera.main.transform;
         flag = true;
+        _time = -1f;
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        if (flag && GetTurnButton())
+        if (_time < 0f)
         {
-            flag = false;
-            Vector3 axis = defaultCamera.up;
-            StartCoroutine(Turning(defaultCamera.forward, 180f, axis));
+            if (flag && GetTurnButton())
+            {
+                flag = false;
+                Vector3 axis = defaultCamera.up;
+                StartCoroutine(Turning(defaultCamera.forward, axis));
+            }
+        }
+        else
+        {
+            _time -= Time.deltaTime;
         }
     }
 
@@ -46,7 +55,7 @@ public class PlayerTurn : MonoBehaviour
         return Input.GetKey(KeyCode.V);
     }
 
-    private IEnumerator Turning(Vector3 forwardFrom, float angle, Vector3 axis)
+    private IEnumerator Turning(Vector3 forwardFrom, Vector3 axis)
     {
         fpc.setJump();
         float time = 0f;
@@ -68,6 +77,6 @@ public class PlayerTurn : MonoBehaviour
         defaultCamera.LookAt(defaultCamera.position + temp);
         fpc.MouseLook.Init(transform, defaultCamera.transform);
         flag = true;
-        
+        _time = minTime;
     }
 }

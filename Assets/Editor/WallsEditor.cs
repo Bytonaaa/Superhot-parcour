@@ -23,7 +23,7 @@ public class WallsEditor : Editor
 	            var neonEffect = VARIABLE as NeonEffect;
 	            if (neonEffect != null)
 	            {
-	                neonEffect.setNeonLine();
+	                neonEffect.Reset(true);
 	            }
 	        }
 	    }

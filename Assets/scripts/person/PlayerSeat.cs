@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterController), typeof(FirstPersonController))]
 public class PlayerSeat : MonoBehaviour
 {
 
@@ -11,12 +12,18 @@ public class PlayerSeat : MonoBehaviour
     private float originalScale;
     private float originalCenter;
     private CharacterController characterController;
+    private FirstPersonController fpc;
 	// Use this for initialization
 	void Start ()
 	{
 	    IsSeating = false;
 	    characterController = GetComponent<CharacterController>();
         originalScale = characterController.height;
+	    fpc = GetComponent<FirstPersonController>();
+	    if (fpc == null)
+	    {
+	        throw new Exception("No First Person Controller");
+	    }
 
 	}
 	
@@ -34,6 +41,7 @@ public class PlayerSeat : MonoBehaviour
                     transform.position += Vector3.down * originalScale * 0.5f;
                 }
                 IsSeating = true;
+                fpc.IsSeating = IsSeating;
             }
         }
         else if (IsSeating)
@@ -45,6 +53,7 @@ public class PlayerSeat : MonoBehaviour
             {
                 transform.position += Vector3.up*originalScale*0.5f;
             }
+            fpc.IsSeating = IsSeating;
         }
     }
 

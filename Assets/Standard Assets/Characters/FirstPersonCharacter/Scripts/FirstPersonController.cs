@@ -83,6 +83,8 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    public bool IsSeating { get; set; }
+
     public Vector3 WallRunDirection { get; set; }
     private bool DoubleJump;
 
@@ -205,7 +207,7 @@ public class FirstPersonController : MonoBehaviour
         }
         else if (DoubleJump && m_Jump)
         {
-            if (m_MoveDir.y < 1f)
+            if (m_MoveDir.y < 10f)
             {
                 Jump();
                 DoubleJump = false;
@@ -345,13 +347,8 @@ public class FirstPersonController : MonoBehaviour
         //CrossPlatformInputManager.GetAxis("Vertical");
         bool waswalking = m_IsWalking;
 
-#if !MOBILE_INPUT
-        // On standalone builds, walk/run speed is modified by a key press.
-        // keep track of whether or not the character is walking or running
-        m_IsWalking = !Input.GetKey(KeyCode.LeftShift);
-#endif
         // set the desired speed to be walking or running
-        speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;
+        speed = IsSeating ? m_WalkSpeed * 0.5f : m_WalkSpeed;
         m_Input = new Vector2(horizontal, vertical);
 
         // normalize input if it exceeds 1 in combined length:
