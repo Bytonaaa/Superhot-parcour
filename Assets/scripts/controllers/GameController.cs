@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,12 +23,10 @@ public class GameController {
 
     public static void LoadLevel(string level)
     {
-        var temp = SceneManager.GetSceneByName("level");
-        if (temp.IsValid())
+        try
         {
-            SceneManager.LoadScene(temp.name);
-        }
-        else
+            SceneManager.LoadScene(level);
+        } catch(Exception)
         {
             GoToMain();
         }

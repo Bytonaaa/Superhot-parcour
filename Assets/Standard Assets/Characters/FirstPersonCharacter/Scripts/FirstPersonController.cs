@@ -83,6 +83,7 @@ public class FirstPersonController : MonoBehaviour
     }
 
     public bool IsSeating { get; set; }
+    public float SeatFactor { get; set; }
 
     public Vector3 WallRunDirection { get; set; }
     private bool DoubleJump;
@@ -205,16 +206,9 @@ public class FirstPersonController : MonoBehaviour
         }
         else if (DoubleJump && m_Jump)
         {
-            if (m_MoveDir.y < 10f)
-            {
-                Jump();
-                DoubleJump = false;
-                jump = true;
-            }
-            else
-            {
-                m_Jump = false;
-            }
+            Jump();
+            DoubleJump = false;
+            jump = true;
 
         }
         else
@@ -346,7 +340,7 @@ public class FirstPersonController : MonoBehaviour
         bool waswalking = m_IsWalking;
 
         // set the desired speed to be walking or running
-        speed = IsSeating ? m_WalkSpeed * 0.5f : m_WalkSpeed;
+        speed = IsSeating ? m_WalkSpeed * SeatFactor : m_WalkSpeed;
         m_Input = new Vector2(horizontal, vertical);
 
         // normalize input if it exceeds 1 in combined length:
