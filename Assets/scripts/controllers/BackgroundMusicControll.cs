@@ -20,6 +20,9 @@ class BackgroundMusicControll : MonoBehaviour
 
     private AudioClip nowClip;
     private AudioSource myAudioSource;
+    private string author;
+    private string musicName;
+
 
     void Start()
     {
@@ -39,6 +42,19 @@ class BackgroundMusicControll : MonoBehaviour
             myAudioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
         }
         
+    }
+
+    void Update()
+    {
+        if (myAudioSource.time >= myAudioSource.clip.length - 2f)
+        {
+            PlayMusic();
+        }
+
+        if (myAudioSource.time >= myAudioSource.clip.length - 12f)
+        {
+            UIMusicController.GetInstance.SetMusicName(author, musicName);
+        }
     }
 
     private SimpleSoundObject GetRandomClip()
@@ -71,6 +87,8 @@ class BackgroundMusicControll : MonoBehaviour
         myAudioSource.clip = sound.Music;
 
         UIMusicController.GetInstance.SetMusicName(temp.Author, sound.Name);
+        author = temp.Author;
+        musicName = sound.Name;
         myAudioSource.Play();
         
 

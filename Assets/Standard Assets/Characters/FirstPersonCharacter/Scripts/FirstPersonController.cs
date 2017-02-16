@@ -61,7 +61,6 @@ public class FirstPersonController : MonoBehaviour
     private float m_StepCycle;
     private float m_NextStep;
     private bool m_Jumping;
-    private AudioSource m_AudioSource;
 
 
     private Transform playerScaleFactor;
@@ -100,7 +99,6 @@ public class FirstPersonController : MonoBehaviour
         m_NextStep = m_StepCycle/2f;
         m_Jumping = false;
         DoubleJump = true;
-        m_AudioSource = GetComponent<AudioSource>();
         m_MouseLook.Init(transform, m_Camera.transform);
 
         playerScaleFactor = transform.parent;

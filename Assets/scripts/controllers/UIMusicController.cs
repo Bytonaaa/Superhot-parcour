@@ -24,7 +24,7 @@ class UIMusicController : MonoBehaviour
 
     private Canvas myCanvas;
 
-    void Start()
+    void Awake()
     {
         if (musicControll != null)
         {
@@ -68,7 +68,7 @@ class UIMusicController : MonoBehaviour
 
     IEnumerator TextCoroutine(string author, string song)
     {
-        musicText.text = string.Format("{0}\n{1}", song, author);
+        musicText.text = string.Format("{0}\nby: {1}", song, author);
         yield return new WaitForSecondsRealtime(timeToMusicName);
         musicText.text = string.Empty;
     }

@@ -163,7 +163,7 @@ public class LinePropertyEditor : PropertyDrawer {
                     }
 
                 }
-            } catch (Exception exception)
+            } catch (Exception)
             {
                 myLineCurve = null;
             }

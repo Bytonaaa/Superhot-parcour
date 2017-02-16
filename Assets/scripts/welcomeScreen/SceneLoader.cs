@@ -4,19 +4,17 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 public class SceneLoader : MonoBehaviour {
 
-    [SerializeField]
-    private string sceneToLoad;
+    [SerializeField]private string sceneToLoad;
 	// Use this for initialization
-	void Start () {
-		
+	void Update () {
+	    if (Input.anyKeyDown)
+	    {
+	        LoadScene();
+	    }
 	}
 	
 	public void LoadScene()
     {
-        if (sceneToLoad == null)
-        {
-            throw new System.Exception("No scene");
-        }
         SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
     }
 }
