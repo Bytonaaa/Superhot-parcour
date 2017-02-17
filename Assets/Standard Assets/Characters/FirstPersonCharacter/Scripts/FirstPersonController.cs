@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityStandardAssets.Characters.FirstPerson;
 using UnityStandardAssets.CrossPlatformInput;
@@ -92,6 +93,7 @@ public class FirstPersonController : MonoBehaviour
     private void Start()
     {
         m_CharacterController = GetComponent<CharacterController>();
+
         m_Camera = Camera.main;
         m_OriginalCameraPosition = m_Camera.transform.localPosition;
         m_FovKick.Setup(m_Camera);
@@ -101,6 +103,8 @@ public class FirstPersonController : MonoBehaviour
         m_Jumping = false;
         DoubleJump = true;
         m_MouseLook.Init(transform, m_Camera.transform);
+
+        isControlled = true;
 
         playerScaleFactor = transform.parent;
         if (playerScaleFactor == null)
@@ -136,7 +140,7 @@ public class FirstPersonController : MonoBehaviour
             PlayLandingSound();
             m_MoveDir.y = 0f;
             m_Jumping = false;
-            DoubleJump = true;
+
         }
         if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
         {
@@ -155,17 +159,47 @@ public class FirstPersonController : MonoBehaviour
     }
 
 
+    public bool isControlled { get; private set; }
+    public Vector3 unControllDirection { get; set; }
+    private float _unControllSpeed;
+
+    public float unControllSpeed
+    {
+        get { return useUnControllSpeed ? _unControllSpeed : m_WalkSpeed; }
+        set { _unControllSpeed = value; }
+    }
+
+    public bool useUnControllSpeed { get; set; }
+
+    IEnumerator UnControllCoroutine(float time)
+    {
+        isControlled = false;
+        yield return new WaitForSecondsRealtime(time);
+        isControlled = true;
+    }
+
+    public void UnControll(float time)
+    {
+        if (isControlled)
+        {
+            StartCoroutine(UnControllCoroutine(time));
+        }
+    }
+
+
     private void FixedUpdate()
     {
         float speed;
         GetInput(out speed);
         // always move along the camera forward as it is the direction that it being aimed at
-        Vector3 desiredMove = transform.forward*m_Input.y + transform.right*m_Input.x;
+        Vector3 desiredMove = isControlled ? transform.forward*m_Input.y + transform.right*m_Input.x : unControllDirection * unControllSpeed ;
 
         // get a normal for the surface that is being touched to move along it
         RaycastHit hitInfo;
-        Physics.SphereCast(transform.position, m_CharacterController.radius, Vector3.down, out hitInfo,
-            m_CharacterController.height/2f, Physics.AllLayers, QueryTriggerInteraction.Ignore);
+        Physics.SphereCast(transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), m_CharacterController.radius * 0.5f, Vector3.down, out hitInfo,
+            m_CharacterController.height, Physics.AllLayers, QueryTriggerInteraction.Ignore);
+
+        Debug.DrawLine(transform.position, transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), Color.red);
         desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
 
         m_MoveDir.x = desiredMove.x*speed;
@@ -181,6 +215,7 @@ public class FirstPersonController : MonoBehaviour
                 Jump();
                 jump = true;
             }
+            DoubleJump = true;
         }
         else if (WallRun)
         {
@@ -218,31 +253,51 @@ public class FirstPersonController : MonoBehaviour
 
         var last = m_CharacterController.isGrounded;
 
-        m_CollisionFlags = m_CharacterController.Move(m_MoveDir*Time.fixedDeltaTime/Time.timeScale);
+        m_CharacterController.Move(Vector3.forward*0.01f);
+        m_CharacterController.Move(Vector3.back * 0.01f);
+        m_CharacterController.Move(Vector3.left * 0.01f);
+        m_CharacterController.Move(Vector3.right * 0.01f);
 
+
+        m_CollisionFlags = m_CharacterController.Move(m_MoveDir*Time.fixedDeltaTime);
+
+        if (m_CollisionFlags == CollisionFlags.Above)
+        {
+            WallRun = false;
+        }
 
         if (last && !m_CharacterController.isGrounded && !jump && !WallRun)
         {
             m_MoveDir.y = 0f;
         }
 
-        var colliders = Physics.OverlapCapsule(
+        var colliders = WallRun ? Physics.OverlapCapsule(
             transform.position + m_CharacterController.center + m_CharacterController.height*.5f*Vector3.up,
             transform.position + m_CharacterController.center - m_CharacterController.height*.5f*Vector3.up,
-            m_CharacterController.radius + m_CharacterController.skinWidth);
+            m_CharacterController.radius + m_CharacterController.skinWidth + 0.1f) : 
+            m_CharacterController.isGrounded ?
+            Physics.OverlapSphere(transform.position + m_CharacterController.center - (m_CharacterController.height * .5f + m_CharacterController.skinWidth) * Vector3.up ,
+                m_CharacterController.radius) : new Collider[0];
+
+
+
+
 
         var flag = false;
         foreach (var VARIABLE in colliders)
         {
             if (VARIABLE.gameObject.GetComponent("MoveableBlock"))
             {
-                if (playerScaleFactor.parent == null ||  playerScaleFactor.parent.GetHashCode() != VARIABLE.transform.GetHashCode())
+                if (playerScaleFactor.parent == null ||
+                    playerScaleFactor.parent.GetHashCode() != VARIABLE.transform.GetHashCode())
                 {
                     playerScaleFactor.SetParent(VARIABLE.transform, true);
+                    
                 }
                 flag = true;
             }
         }
+
 
         if (!flag && playerScaleFactor.parent != null)
         {
@@ -367,7 +422,7 @@ public class FirstPersonController : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-
+        return;
         Rigidbody body = hit.collider.attachedRigidbody;
         //dont move the rigidbody if the character is on top of it
         if (m_CollisionFlags == CollisionFlags.Below)

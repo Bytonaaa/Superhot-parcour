@@ -55,7 +55,7 @@ public class PlayerWallRun : MonoBehaviour
         {
             RaycastHit hitInfo;
             if (!Physics.CapsuleCast(transform.position, transform.position + Vector3.down * characterController.height, characterController.radius, direction, out hitInfo,
-                characterController.radius + characterController.skinWidth + 0.1f, layerMask))
+                characterController.radius + characterController.skinWidth, layerMask))
             {
                 fpc.WallRun = false;
             }

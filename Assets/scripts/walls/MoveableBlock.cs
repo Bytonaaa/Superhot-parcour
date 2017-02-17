@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [RequireComponent(typeof(Rigidbody))]
 public class MoveableBlock : MonoBehaviour
 {
@@ -19,16 +18,17 @@ public class MoveableBlock : MonoBehaviour
     private bool turnBack = false;
     private bool moved;
 
+    private Rigidbody myRigidbody;
+
     void Start()
     {
-        var rigid = GetComponent<Rigidbody>();
-        if (rigid == null)
+        myRigidbody = GetComponent<Rigidbody>();
+        if (myRigidbody == null)
         {
-            rigid = gameObject.AddComponent<Rigidbody>();
+            myRigidbody = gameObject.AddComponent<Rigidbody>();
         }
-
-        rigid.isKinematic = true;
-        rigid.useGravity = false;
+        myRigidbody.isKinematic = true;
+        myRigidbody.useGravity = false;
         if (fromStart)
         {
             StartMove();
@@ -57,6 +57,8 @@ public class MoveableBlock : MonoBehaviour
             return;
         }
 
+        
+
         myPos += dt*speed*line.getSpeed(myIndex, nextIndex);
         while (myPos >= maxPos)
         {
@@ -76,9 +78,9 @@ public class MoveableBlock : MonoBehaviour
                 }
             }
         }
+
+        myRigidbody.MovePosition(line.getPosition(myIndex, nextIndex, myPos / maxPos));
         transform.position = line.getPosition(myIndex, nextIndex, myPos/maxPos);
-
-
 
     }
 

@@ -10,6 +10,7 @@ public class PlayerTurn : MonoBehaviour
 {
 
     [SerializeField] private float TimeToTurn = 0.1f;
+    [SerializeField] private float TimeToUnControl = 0.3f;
     private Transform defaultCamera;
 
     private bool flag = true;
@@ -52,12 +53,18 @@ public class PlayerTurn : MonoBehaviour
 
     private bool GetTurnButton()
     {
-        return Input.GetKey(KeyCode.V);
+        return Input.GetKeyDown(KeyCode.V);
     }
 
     private IEnumerator Turning(Vector3 forwardFrom, Vector3 axis)
     {
         fpc.setJump();
+        
+        fpc.UnControll(TimeToUnControl);
+        fpc.unControllDirection = -fpc.transform.forward;
+        fpc.useUnControllSpeed = false;
+
+
         float time = 0f;
         Vector3 temp;
         Quaternion lastTransformRotation = transform.rotation;
