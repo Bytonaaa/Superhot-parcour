@@ -34,7 +34,7 @@ public class WallButton : MonoBehaviour
     void OnTriggerStay(Collider playerCollider)
     {
 
-        if (canCheck && target && Input.GetKeyDown(KeyCode.E) && playerCollider.isTrigger  && playerCollider.CompareTag("Player"))
+        if (canCheck && target && ( Input.GetKeyDown(KeyCode.T) || Input.GetMouseButtonDown(0)) && playerCollider.isTrigger  && playerCollider.CompareTag("Player"))
         {
             if (CanBePressedAgain && isPressed) { 
                 target.StopMove();

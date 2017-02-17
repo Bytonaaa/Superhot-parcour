@@ -11,7 +11,6 @@ public class MoveableBlock : MonoBehaviour
     [SerializeField] private bool fromStart = true;
 
     private const float speed = 1f;
-    private const float maxPos = 100f;
     private float myPos = 0f;
     private int myIndex = 0;
     private int nextIndex = 1;
@@ -59,10 +58,10 @@ public class MoveableBlock : MonoBehaviour
 
         
 
-        myPos += dt*speed*line.getSpeed(myIndex, nextIndex);
-        while (myPos >= maxPos)
+        myPos += dt;
+        while (myPos >= line.getTime(myIndex, nextIndex))
         {
-            myPos -= maxPos;
+            myPos -= line.getTime(myIndex, nextIndex);
             myIndex = nextIndex;
             nextIndex += turnBack ? -1 : 1;
             if (line.isEnd(nextIndex))
@@ -75,12 +74,13 @@ public class MoveableBlock : MonoBehaviour
                 else
                 {
                     StopMove();
+                    break;
                 }
             }
         }
 
-        myRigidbody.MovePosition(line.getPosition(myIndex, nextIndex, myPos / maxPos));
-        transform.position = line.getPosition(myIndex, nextIndex, myPos/maxPos);
+        myRigidbody.MovePosition(line.getPosition(myIndex, nextIndex, myPos / line.getTime(myIndex, nextIndex)));
+        transform.position = line.getPosition(myIndex, nextIndex, myPos / line.getTime(myIndex, nextIndex));
 
     }
 

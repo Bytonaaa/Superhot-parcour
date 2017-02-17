@@ -8,6 +8,7 @@ public class PlayerSeat : MonoBehaviour
 {
 
     [SerializeField] private float seatFactor = 0.5f;
+    [SerializeField] private KeyCode seatKey = KeyCode.LeftControl;
 
     private bool IsSeating;
     private float originalScale;
@@ -80,6 +81,6 @@ public class PlayerSeat : MonoBehaviour
 
     private bool GetSeatButton()
     {
-        return Input.GetKey(KeyCode.LeftControl);
+        return Input.GetKey(seatKey);
     }
 }

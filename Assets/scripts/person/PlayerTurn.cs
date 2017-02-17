@@ -11,6 +11,7 @@ public class PlayerTurn : MonoBehaviour
 
     [SerializeField] private float TimeToTurn = 0.1f;
     [SerializeField] private float TimeToUnControl = 0.3f;
+    [SerializeField] private KeyCode TurnButton = KeyCode.V;
     private Transform defaultCamera;
 
     private bool flag = true;
@@ -53,7 +54,7 @@ public class PlayerTurn : MonoBehaviour
 
     private bool GetTurnButton()
     {
-        return Input.GetKeyDown(KeyCode.V);
+        return Input.GetKeyDown(TurnButton);
     }
 
     private IEnumerator Turning(Vector3 forwardFrom, Vector3 axis)

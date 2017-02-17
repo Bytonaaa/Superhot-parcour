@@ -19,7 +19,7 @@ public class LinePropertyEditor : PropertyDrawer {
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
-        return ((property.FindPropertyRelative("points").arraySize * 2) + 1) * EditorGUIUtility.singleLineHeight;
+        return ((property.FindPropertyRelative("points").arraySize * 3) + 1) * EditorGUIUtility.singleLineHeight;
     }
 
     public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
@@ -42,12 +42,17 @@ public class LinePropertyEditor : PropertyDrawer {
         EditorGUI.LabelField(position, "Size: " + sizeOfCurve());
         position.y += position.height;
 
-        while (sizeOfCurve() - property.FindPropertyRelative("speed").arraySize > 1)
+        while (sizeOfCurve() - property.FindPropertyRelative("time").arraySize > 1)
         {
-            property.FindPropertyRelative("speed").InsertArrayElementAtIndex(property.FindPropertyRelative("speed").arraySize);
-            property.FindPropertyRelative("speed")
-                .GetArrayElementAtIndex(property.FindPropertyRelative("speed").arraySize - 1)
+            property.FindPropertyRelative("time").InsertArrayElementAtIndex(property.FindPropertyRelative("time").arraySize);
+            property.FindPropertyRelative("time")
+                .GetArrayElementAtIndex(property.FindPropertyRelative("time").arraySize - 1)
                 .floatValue = 1f;
+        }
+
+        while (sizeOfCurve() - property.FindPropertyRelative("waitTime").arraySize > 0)
+        {
+            property.FindPropertyRelative("waitTime").InsertArrayElementAtIndex(property.FindPropertyRelative("waitTime").arraySize);
         }
 
         
@@ -55,10 +60,13 @@ public class LinePropertyEditor : PropertyDrawer {
         {
             EditorGUI.PropertyField(position, getPointSerialized(i), new GUIContent("Point: " + (i + 1).ToString()));
             position.y += position.height;
+            EditorGUI.PropertyField(position, property.FindPropertyRelative("waitTime").GetArrayElementAtIndex(i),
+                new GUIContent("wait Time: "));
+            position.y += position.height;
             if (i + 1 < sizeOfCurve())
             {
-                EditorGUI.PropertyField(position, property.FindPropertyRelative("speed").GetArrayElementAtIndex(i),
-                    new GUIContent("Speed: "));
+                EditorGUI.PropertyField(position, property.FindPropertyRelative("time").GetArrayElementAtIndex(i),
+                    new GUIContent("move Time: "));
                 position.y += position.height;
             }
         }
@@ -97,10 +105,11 @@ public class LinePropertyEditor : PropertyDrawer {
     {
         int size = sizeOfCurve();
         myLineCurve.FindPropertyRelative("points").InsertArrayElementAtIndex(size);
+        myLineCurve.FindPropertyRelative("waitTime").InsertArrayElementAtIndex(size);
         if (size >= 1)
         {
             setPoint(size, getPoint(size - 1));
-            myLineCurve.FindPropertyRelative("speed").InsertArrayElementAtIndex(size - 1);
+            myLineCurve.FindPropertyRelative("time").InsertArrayElementAtIndex(size - 1);
         }
         
     }
@@ -111,9 +120,10 @@ public class LinePropertyEditor : PropertyDrawer {
         if (size > 0)
         {
             myLineCurve.FindPropertyRelative("points").DeleteArrayElementAtIndex(size - 1);
+            myLineCurve.FindPropertyRelative("waitTime").DeleteArrayElementAtIndex(size - 1);
             if (size > 1)
             {
-                myLineCurve.FindPropertyRelative("speed").DeleteArrayElementAtIndex(size - 2);
+                myLineCurve.FindPropertyRelative("time").DeleteArrayElementAtIndex(size - 2);
             }
         }
     }
