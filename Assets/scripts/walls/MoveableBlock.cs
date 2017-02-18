@@ -32,6 +32,10 @@ public class MoveableBlock : MonoBehaviour
         {
             StartMove();
         }
+        else
+        {
+            StopMove();
+        }
     }
 
     void FixedUpdate()
@@ -39,7 +43,7 @@ public class MoveableBlock : MonoBehaviour
         if (moved)
         {
             Move(Time.fixedDeltaTime);
-        }
+        } 
     }
 
 

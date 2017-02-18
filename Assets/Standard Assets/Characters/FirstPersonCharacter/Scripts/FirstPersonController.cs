@@ -46,6 +46,7 @@ public class FirstPersonController : MonoBehaviour
 
     private Camera m_Camera;
     private bool m_Jump;
+    private bool noControlJump;
     private float m_YRotation;
     private Vector2 m_Input;
     private Vector3 m_MoveDir = Vector3.zero;
@@ -101,6 +102,7 @@ public class FirstPersonController : MonoBehaviour
         m_StepCycle = 0f;
         m_NextStep = m_StepCycle/2f;
         m_Jumping = false;
+        noControlJump = m_Jump = false;
         DoubleJump = true;
         m_MouseLook.Init(transform, m_Camera.transform);
 
@@ -116,25 +118,34 @@ public class FirstPersonController : MonoBehaviour
 
     public void setJump()
     {
-        if (WallRun || (!m_Jump && (DoubleJump || m_CharacterController.isGrounded)))
+        if (WallRun || (DoubleJump || m_CharacterController.isGrounded))
         {
-            m_Jump = true;
+            noControlJump = true;
         }
     }
 
+    IEnumerator waitJump()
+    {
+        m_Jump = true;
+        yield return new WaitForSecondsRealtime(0.1f);
+        m_Jump = false;
+    }
     // Update is called once per frame
     private void Update()
     {
         RotateView();
         // the jump state needs to read here to make sure it is not missed
-        if (WallRun || (!m_Jump && (DoubleJump || m_CharacterController.isGrounded)))
+        if (!m_Jump && (WallRun || DoubleJump || m_CharacterController.isGrounded))
         {
-            m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
+            if (CrossPlatformInputManager.GetButtonDown("Jump"))
+            {
+                StartCoroutine(waitJump());
+            }
         }
         jumpButtonReleased = jumpButtonReleased ? jumpButtonReleased : CrossPlatformInputManager.GetButtonUp("Jump");
 
 
-        if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
+        /*if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
         {
             StartCoroutine(m_JumpBob.DoBobCycle());
             PlayLandingSound();
@@ -145,7 +156,7 @@ public class FirstPersonController : MonoBehaviour
         if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
         {
             m_MoveDir.y = 0f;
-        }
+        }*/
 
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
     }
@@ -205,15 +216,13 @@ public class FirstPersonController : MonoBehaviour
         m_MoveDir.x = desiredMove.x*speed;
         m_MoveDir.z = desiredMove.z*speed;
 
-        var jump = false;
 
         if (m_CharacterController.isGrounded)
         {
             m_MoveDir.y = -m_StickToGroundForce;
-            if (m_Jump)
+            if (m_Jump || noControlJump)
             {
                 Jump();
-                jump = true;
             }
             DoubleJump = true;
         }
@@ -231,19 +240,18 @@ public class FirstPersonController : MonoBehaviour
             else
             {
                 _timeWallRun -= Time.fixedDeltaTime;
-                if (m_Jump)
+                if (m_Jump || noControlJump)
                 {
                     Jump();
                     WallRun = false;
-                    jump = true;
                 }
             }
         }
-        else if (DoubleJump && m_Jump)
+        else if (DoubleJump && (m_Jump || noControlJump))
         {
             Jump();
             DoubleJump = false;
-            jump = true;
+
 
         }
         else
@@ -251,7 +259,7 @@ public class FirstPersonController : MonoBehaviour
             m_MoveDir += Physics.gravity*m_GravityMultiplier*Time.fixedDeltaTime;
         }
 
-        var last = m_CharacterController.isGrounded;
+
 
         m_CharacterController.Move(Vector3.forward*0.01f);
         m_CharacterController.Move(Vector3.back * 0.01f);
@@ -266,10 +274,6 @@ public class FirstPersonController : MonoBehaviour
             WallRun = false;
         }
 
-        if (last && !m_CharacterController.isGrounded && !jump && !WallRun)
-        {
-            m_MoveDir.y = 0f;
-        }
 
         var colliders = WallRun ? Physics.OverlapCapsule(
             transform.position + m_CharacterController.center + m_CharacterController.height*.5f*Vector3.up,
@@ -315,8 +319,9 @@ public class FirstPersonController : MonoBehaviour
         m_MoveDir.y = m_JumpSpeed;
         PlayJumpSound();
         m_Jump = false;
+        StopCoroutine("waitJump");
         m_Jumping = true;
-
+        noControlJump = false;
     }
 
     private void PlayJumpSound()
