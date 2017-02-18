@@ -7,17 +7,17 @@ public class OnHelpTrigger : MonoBehaviour
 {
 
     [SerializeField] private string HelpText;
-    [SerializeField] private new Collider collider;
+    [SerializeField] private Collider myCollider;
     [SerializeField] private bool DestroyOnRead;
 
 	// Use this for initialization
 	void Start () {
-	    if (collider == null && (collider = GetComponent<Collider>()) == null)
+	    if (myCollider == null && (myCollider = GetComponent<Collider>()) == null)
 	    {
 	        throw new Exception("No trigger exist");
 	    }
 
-	    collider.isTrigger = true;
+        myCollider.isTrigger = true;
 	}
 
     void OnTriggerEnter(Collider collider)
