@@ -32,10 +32,6 @@ public class MoveableBlock : MonoBehaviour
         {
             StartMove();
         }
-        else
-        {
-            StopMove();
-        }
     }
 
     void FixedUpdate()
@@ -59,6 +55,8 @@ public class MoveableBlock : MonoBehaviour
             StopMove();
             return;
         }
+
+        
 
         myPos += dt;
         while (myPos >= line.getTime(myIndex, nextIndex))
