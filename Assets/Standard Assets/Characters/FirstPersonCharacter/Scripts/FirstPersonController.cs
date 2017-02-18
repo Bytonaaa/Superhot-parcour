@@ -34,7 +34,7 @@ public class FirstPersonController : MonoBehaviour
     [SerializeField] private float m_StepInterval;
 
     [SerializeField] private AudioClip[] m_FootstepSounds;
-        // an array of footstep sounds that will be randomly selected from.
+    // an array of footstep sounds that will be randomly selected from.
 
     [SerializeField] private AudioClip m_JumpSound; // the sound played when character leaves the ground.
     [SerializeField] private AudioClip m_LandSound; // the sound played when character touches back on ground.
@@ -46,6 +46,7 @@ public class FirstPersonController : MonoBehaviour
 
     private Camera m_Camera;
     private bool m_Jump;
+    private bool noControlJump;
     private float m_YRotation;
     private Vector2 m_Input;
     private Vector3 m_MoveDir = Vector3.zero;
@@ -101,6 +102,7 @@ public class FirstPersonController : MonoBehaviour
         m_StepCycle = 0f;
         m_NextStep = m_StepCycle/2f;
         m_Jumping = false;
+        noControlJump = m_Jump = false;
         DoubleJump = true;
         m_MouseLook.Init(transform, m_Camera.transform);
 
@@ -116,21 +118,35 @@ public class FirstPersonController : MonoBehaviour
 
     public void setJump()
     {
-        if (WallRun || (!m_Jump && (DoubleJump || m_CharacterController.isGrounded)))
+        if (WallRun || DoubleJump || m_CharacterController.isGrounded)
         {
-            m_Jump = true;
+            noControlJump = true;
         }
     }
 
+
+    IEnumerator pressJump()
+    {
+        m_Jump = true;
+        yield return new WaitForSecondsRealtime(0.15f);
+        m_Jump = false;
+    }
     // Update is called once per frame
     private void Update()
     {
         RotateView();
+
+
         // the jump state needs to read here to make sure it is not missed
-        if (WallRun || (!m_Jump && (DoubleJump || m_CharacterController.isGrounded)))
+        if (!m_Jump && (WallRun || DoubleJump || m_CharacterController.isGrounded))
         {
-            m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
+            if (CrossPlatformInputManager.GetButtonDown("Jump"))
+            {
+                StartCoroutine(pressJump());
+            }
         }
+
+
         jumpButtonReleased = jumpButtonReleased ? jumpButtonReleased : CrossPlatformInputManager.GetButtonUp("Jump");
 
 
@@ -138,14 +154,14 @@ public class FirstPersonController : MonoBehaviour
         {
             StartCoroutine(m_JumpBob.DoBobCycle());
             PlayLandingSound();
-            m_MoveDir.y = 0f;
+            //m_MoveDir.y = 0f;
             m_Jumping = false;
 
         }
-        if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
+        /*if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
         {
             m_MoveDir.y = 0f;
-        }
+        }*/
 
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
     }
@@ -189,31 +205,39 @@ public class FirstPersonController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
+
         float speed;
         GetInput(out speed);
         // always move along the camera forward as it is the direction that it being aimed at
-        Vector3 desiredMove = isControlled ? transform.forward*m_Input.y + transform.right*m_Input.x : unControllDirection * unControllSpeed ;
+        Vector3 desiredMove = isControlled
+            ? transform.forward*m_Input.y + transform.right*m_Input.x
+            : unControllDirection*unControllSpeed;
 
         // get a normal for the surface that is being touched to move along it
         RaycastHit hitInfo;
-        Physics.SphereCast(transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), m_CharacterController.radius * 0.5f, Vector3.down, out hitInfo,
+        Physics.SphereCast(
+            transform.position + m_CharacterController.center -
+            Vector3.up*0.5f*(m_CharacterController.height + m_CharacterController.skinWidth),
+            m_CharacterController.radius*0.5f, Vector3.down, out hitInfo,
             m_CharacterController.height, Physics.AllLayers, QueryTriggerInteraction.Ignore);
 
-        Debug.DrawLine(transform.position, transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), Color.red);
+        Debug.DrawLine(transform.position,
+            transform.position + m_CharacterController.center -
+            Vector3.up*0.5f*(m_CharacterController.height + m_CharacterController.skinWidth), Color.red);
         desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
 
         m_MoveDir.x = desiredMove.x*speed;
         m_MoveDir.z = desiredMove.z*speed;
+        
 
-        var jump = false;
 
         if (m_CharacterController.isGrounded)
         {
-            m_MoveDir.y = -m_StickToGroundForce;
-            if (m_Jump)
+            m_MoveDir.y = -m_StickToGroundForce*50;
+            if (m_Jump || noControlJump)
             {
                 Jump();
-                jump = true;
             }
             DoubleJump = true;
         }
@@ -231,32 +255,32 @@ public class FirstPersonController : MonoBehaviour
             else
             {
                 _timeWallRun -= Time.fixedDeltaTime;
-                if (m_Jump)
+                if (m_Jump || noControlJump)
                 {
                     Jump();
                     WallRun = false;
-                    jump = true;
                 }
             }
         }
-        else if (DoubleJump && m_Jump)
+        else if (DoubleJump && (noControlJump || m_Jump))
         {
             Jump();
             DoubleJump = false;
-            jump = true;
 
         }
         else
         {
+            Debug.Log("lol");
             m_MoveDir += Physics.gravity*m_GravityMultiplier*Time.fixedDeltaTime;
         }
 
         var last = m_CharacterController.isGrounded;
 
         m_CharacterController.Move(Vector3.forward*0.01f);
-        m_CharacterController.Move(Vector3.back * 0.01f);
-        m_CharacterController.Move(Vector3.left * 0.01f);
-        m_CharacterController.Move(Vector3.right * 0.01f);
+        m_CharacterController.Move(Vector3.back*0.01f);
+        m_CharacterController.Move(Vector3.left*0.01f);
+        m_CharacterController.Move(Vector3.right*0.01f);
+        m_CharacterController.Move(Vector3.down*0.01f);
 
 
         m_CollisionFlags = m_CharacterController.Move(m_MoveDir*Time.fixedDeltaTime);
@@ -266,18 +290,18 @@ public class FirstPersonController : MonoBehaviour
             WallRun = false;
         }
 
-        if (last && !m_CharacterController.isGrounded && !jump && !WallRun)
-        {
-            m_MoveDir.y = 0f;
-        }
 
-        var colliders = WallRun ? Physics.OverlapCapsule(
-            transform.position + m_CharacterController.center + m_CharacterController.height*.5f*Vector3.up,
-            transform.position + m_CharacterController.center - m_CharacterController.height*.5f*Vector3.up,
-            m_CharacterController.radius + m_CharacterController.skinWidth + 0.1f) : 
-            m_CharacterController.isGrounded ?
-            Physics.OverlapSphere(transform.position + m_CharacterController.center - (m_CharacterController.height * .5f + m_CharacterController.skinWidth) * Vector3.up ,
-                m_CharacterController.radius) : new Collider[0];
+        var colliders = WallRun
+            ? Physics.OverlapCapsule(
+                transform.position + m_CharacterController.center + m_CharacterController.height*.5f*Vector3.up,
+                transform.position + m_CharacterController.center - m_CharacterController.height*.5f*Vector3.up,
+                m_CharacterController.radius + m_CharacterController.skinWidth + 0.1f)
+            : m_CharacterController.isGrounded
+                ? Physics.OverlapSphere(
+                    transform.position + m_CharacterController.center -
+                    (m_CharacterController.height*.5f + m_CharacterController.skinWidth)*Vector3.up,
+                    m_CharacterController.radius)
+                : new Collider[0];
 
 
 
@@ -292,7 +316,7 @@ public class FirstPersonController : MonoBehaviour
                     playerScaleFactor.parent.GetHashCode() != VARIABLE.transform.GetHashCode())
                 {
                     playerScaleFactor.SetParent(VARIABLE.transform, true);
-                    
+
                 }
                 flag = true;
             }
@@ -315,6 +339,7 @@ public class FirstPersonController : MonoBehaviour
         m_MoveDir.y = m_JumpSpeed;
         PlayJumpSound();
         m_Jump = false;
+        noControlJump = false;
         m_Jumping = true;
 
     }
@@ -386,16 +411,18 @@ public class FirstPersonController : MonoBehaviour
     private void GetInput(out float speed)
     {
         // Read input
-        float vertical = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) ? 1f :
-                           (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) ? -1f : 0f;
-            //CrossPlatformInputManager.GetAxis("Horizontal");
-        float horizontal = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) ? 1f :
-                           (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) ? -1f : 0f;
+        float vertical = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            ? 1f
+            : (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) ? -1f : 0f;
+        //CrossPlatformInputManager.GetAxis("Horizontal");
+        float horizontal = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            ? 1f
+            : (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) ? -1f : 0f;
         //CrossPlatformInputManager.GetAxis("Vertical");
         bool waswalking = m_IsWalking;
 
         // set the desired speed to be walking or running
-        speed = IsSeating ? m_WalkSpeed * SeatFactor : m_WalkSpeed;
+        speed = IsSeating ? m_WalkSpeed*SeatFactor : m_WalkSpeed;
         m_Input = new Vector2(horizontal, vertical);
 
         // normalize input if it exceeds 1 in combined length:
