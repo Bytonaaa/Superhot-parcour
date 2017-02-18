@@ -19,8 +19,15 @@ public class UIController : MonoBehaviour
 
     private Text getTextFromObject(string name)
     {
-        var temp = GameObject.Find(name);
-        return temp == null ? null : temp.GetComponent<Text>();
+        var temp = gameObject.GetComponentsInChildren<Text>();
+        foreach (var VARIABLE in temp)
+        {
+            if (VARIABLE.name == name)
+            {
+                return VARIABLE;
+            }
+        }
+        return null;
     }
 
 	// Use this for initialization
