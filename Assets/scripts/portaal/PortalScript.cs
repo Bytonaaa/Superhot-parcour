@@ -16,6 +16,7 @@ public class PortalScript : MonoBehaviour {
     {
         if (other.CompareTag("Player"))
         {
+            AnalyticsHelper.LogSceneLoadEvent(nextLevel);
             GameController.LoadLevel(nextLevel);
         }
     }

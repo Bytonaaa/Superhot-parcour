@@ -15,6 +15,7 @@ public class SceneLoader : MonoBehaviour {
 	
 	public void LoadScene()
     {
+        AnalyticsHelper.LogSceneLoadEvent(sceneToLoad);
         SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
     }
 }

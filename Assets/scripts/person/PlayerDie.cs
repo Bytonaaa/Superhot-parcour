@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerDie : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public class PlayerDie : MonoBehaviour
 	void Update () {
 	    if (transform.position.y < minYPos)
 	    {
-	        Die();
+            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.fallthrough);
+            Die();
 	    }
 	}
 

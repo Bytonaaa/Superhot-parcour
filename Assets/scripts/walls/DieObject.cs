@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Collider))]
 public class DieObject : MonoBehaviour {
@@ -21,6 +22,7 @@ public class DieObject : MonoBehaviour {
     {
         if (collider.CompareTag("Player"))
         {
+            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.collision);
             collider.GetComponent<PlayerDie>().Die();
         }
     }

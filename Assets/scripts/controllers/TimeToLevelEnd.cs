@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TimeToLevelEnd : MonoBehaviour
 {
@@ -24,7 +25,8 @@ public class TimeToLevelEnd : MonoBehaviour
 	    LevelTime -= Time.deltaTime;
 	    if (LevelTime <= 0f)
 	    {
-	        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerDie>().Die();
+            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.timeout);
+            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerDie>().Die();
 	    }
 	}
 }
