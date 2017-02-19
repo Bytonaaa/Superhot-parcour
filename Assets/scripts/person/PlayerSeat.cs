@@ -11,8 +11,10 @@ public class PlayerSeat : MonoBehaviour
     [SerializeField] private KeyCode seatKey = KeyCode.LeftControl;
     [SerializeField] private float slideStartSpeedFactor = 1.5f;
     [SerializeField] private float slideSlow = 1f;
+    [SerializeField] private float minMoveTimeToSlide = 0.1f;
 
 
+    private float moveTime;
     private bool IsSeating;
     private float originalScale;
     private float originalBoxScale;
@@ -73,6 +75,20 @@ public class PlayerSeat : MonoBehaviour
             return;
         }
 
+
+        if (!IsSeating && characterController.isGrounded && playerMove())
+        {
+            if (moveTime < minMoveTimeToSlide)
+            {
+                moveTime += Time.fixedDeltaTime;
+            }
+        }
+        else
+        {
+            moveTime = 0f;
+        }
+
+
         if (GetSeatButton())
         {
             if (!IsSeating)
@@ -92,7 +108,7 @@ public class PlayerSeat : MonoBehaviour
                 IsSeating = true;
                 fpc.IsSeating = IsSeating;
 
-                if (characterController.isGrounded && playerMove())
+                if (moveTime >= minMoveTimeToSlide)
                 {
                     StartCoroutine(slide());
                 }
