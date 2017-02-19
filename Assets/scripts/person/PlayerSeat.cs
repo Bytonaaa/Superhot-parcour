@@ -9,6 +9,9 @@ public class PlayerSeat : MonoBehaviour
 
     [SerializeField] private float seatFactor = 0.5f;
     [SerializeField] private KeyCode seatKey = KeyCode.LeftControl;
+    [SerializeField] private float slideStartSpeedFactor = 1.5f;
+    [SerializeField] private float slideSlow = 1f;
+
 
     private bool IsSeating;
     private float originalScale;
@@ -18,28 +21,58 @@ public class PlayerSeat : MonoBehaviour
     private BoxCollider box;
     private FirstPersonController fpc;
 	// Use this for initialization
+
 	void Start ()
 	{
 	    IsSeating = false;
 	    characterController = GetComponent<CharacterController>();
         originalScale = characterController.height;
 	    box = GetComponent<BoxCollider>();
-	    if (box != null)
-	    {
-	        originalBoxScale = box.size.y;
-	    }
+	    originalBoxScale = box == null ? 1f : box.size.y;
+	    
 	    fpc = GetComponent<FirstPersonController>();
 	    if (fpc == null || characterController == null)
 	    {
 	        throw new Exception("No First Person Controller");
 	    }
-	    fpc.SeatFactor = seatFactor;    
+	    fpc.SeatFactor = seatFactor;
+	    slided = false;
 
 	}
-	
+
+    private bool playerMove()
+    {
+        return new Vector2(characterController.velocity.x, characterController.velocity.z).sqrMagnitude >= 0.1f;
+    }
+
+    private bool slided;
+
+    IEnumerator slide()
+    {
+        slided = true;
+
+        float mySpeed = fpc.WalkSpeed * slideStartSpeedFactor;
+        fpc.isControlled = false;
+        fpc.useUnControllSpeed = true;
+        fpc.unControllDirection = transform.forward;
+        while (mySpeed > seatFactor * fpc.WalkSpeed)
+        {
+            fpc.unControllSpeed = mySpeed;     
+            yield return new WaitForFixedUpdate();
+            mySpeed -= slideSlow * Time.fixedDeltaTime;
+        }
+
+        slided = false;
+        fpc.isControlled = true;
+    }
 
     void FixedUpdate()
     {
+        if (slided)
+        {
+            return;
+        }
+
         if (GetSeatButton())
         {
             if (!IsSeating)
@@ -58,7 +91,14 @@ public class PlayerSeat : MonoBehaviour
                 }
                 IsSeating = true;
                 fpc.IsSeating = IsSeating;
+
+                if (characterController.isGrounded && playerMove())
+                {
+                    StartCoroutine(slide());
+                }
             }
+
+            
         }
         else if (IsSeating)
         {
