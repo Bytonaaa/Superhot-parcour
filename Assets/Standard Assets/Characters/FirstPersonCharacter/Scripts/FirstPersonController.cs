@@ -14,6 +14,9 @@ public class FirstPersonController : MonoBehaviour
 {
     [SerializeField] private bool m_IsWalking;
     [SerializeField] private float m_WalkSpeed;
+
+    public float WalkSpeed { get { return m_WalkSpeed;  } }
+
     [SerializeField] private float m_RunSpeed;
     [SerializeField] [Range(0f, 1f)] private float m_RunstepLenghten;
     [SerializeField] private float m_JumpSpeed;
@@ -170,7 +173,7 @@ public class FirstPersonController : MonoBehaviour
     }
 
 
-    public bool isControlled { get; private set; }
+    public bool isControlled { get; set; }
     public Vector3 unControllDirection { get; set; }
     private float _unControllSpeed;
 
@@ -203,18 +206,18 @@ public class FirstPersonController : MonoBehaviour
         float speed;
         GetInput(out speed);
         // always move along the camera forward as it is the direction that it being aimed at
-        Vector3 desiredMove = isControlled ? transform.forward*m_Input.y + transform.right*m_Input.x : unControllDirection * unControllSpeed ;
+        Vector3 desiredMove = isControlled ? transform.forward*m_Input.y + transform.right*m_Input.x : unControllDirection;
 
         // get a normal for the surface that is being touched to move along it
         RaycastHit hitInfo;
         Physics.SphereCast(transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), m_CharacterController.radius * 0.5f, Vector3.down, out hitInfo,
             m_CharacterController.height, Physics.AllLayers, QueryTriggerInteraction.Ignore);
 
-        Debug.DrawLine(transform.position, transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), Color.red);
+        //Debug.DrawLine(transform.position, transform.position + m_CharacterController.center - Vector3.up * 0.5f * (m_CharacterController.height + m_CharacterController.skinWidth), Color.red);
         desiredMove = Vector3.ProjectOnPlane(desiredMove, hitInfo.normal).normalized;
 
-        m_MoveDir.x = desiredMove.x*speed;
-        m_MoveDir.z = desiredMove.z*speed;
+        m_MoveDir.x = desiredMove.x*((!isControlled & useUnControllSpeed) ? unControllSpeed : speed);
+        m_MoveDir.z = desiredMove.z* ((!isControlled & useUnControllSpeed) ? unControllSpeed : speed);
 
 
         if (m_CharacterController.isGrounded)
@@ -400,7 +403,7 @@ public class FirstPersonController : MonoBehaviour
         bool waswalking = m_IsWalking;
 
         // set the desired speed to be walking or running
-        speed = IsSeating ? m_WalkSpeed * SeatFactor : m_WalkSpeed;
+        speed = (m_CharacterController.isGrounded & IsSeating) ? m_WalkSpeed * SeatFactor : m_WalkSpeed;
         m_Input = new Vector2(horizontal, vertical);
 
         // normalize input if it exceeds 1 in combined length:

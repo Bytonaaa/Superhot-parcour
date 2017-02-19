@@ -49,7 +49,10 @@ public class TurretStrike : MonoBehaviour
 
     private void TurnTurret()
     {
-        transform.LookAt(player.transform);
+        if (player != null)
+        {
+            transform.LookAt(player.transform.position + Vector3.down * player.GetComponent<CharacterController>().height*.5f);
+        }
     }
 
     private void strike()

@@ -33,11 +33,13 @@ public class BulletMoveable : MonoBehaviour
 	        onExit = true;
 	        _collider.isTrigger = false;
 	    }
-	}
+
+        
+    }
 
     void FixedUpdate()
     {
-        transform.position += transform.forward*speed*Time.fixedDeltaTime;
+        GetComponent<Rigidbody>().MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -66,6 +68,21 @@ public class BulletMoveable : MonoBehaviour
 
     public void Delete()
     {
-        DestroyObject(gameObject);
+        foreach (var VARIABLE in GetComponents<MonoBehaviour>())
+        {
+            VARIABLE.enabled = false;
+        }
+
+        foreach (var VARIABLE in GetComponents<Collider>())
+        {
+            VARIABLE.enabled = false;
+        }
+
+        foreach (var VARIABLE in GetComponents<Renderer>())
+        {
+            VARIABLE.enabled = false;
+        }
+
+        GetComponent<TrailRenderer>().enabled = true;
     }
 }

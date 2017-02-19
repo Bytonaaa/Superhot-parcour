@@ -39,7 +39,7 @@ public class PlayerTurn : MonoBehaviour
     {
         if (_time < 0f)
         {
-            if (flag && GetTurnButton())
+            if (flag && GetTurnButton() && fpc.isControlled)
             {
                 flag = false;
                 Vector3 axis = defaultCamera.up;
