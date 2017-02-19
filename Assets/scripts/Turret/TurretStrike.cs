@@ -38,12 +38,10 @@ public class TurretStrike : MonoBehaviour
     void FixedUpdate()
     {
         RaycastHit rayHit;
-        Debug.Log(time);
         if (time <= 0f && Physics.Raycast(new Ray(transform.position, transform.forward), out rayHit, radius, CheckLayer | unCheckLayer, QueryTriggerInteraction.Collide))
         {
             if ((LayerMask.GetMask(LayerMask.LayerToName(rayHit.transform.gameObject.layer)) & unCheckLayer) == 0)
             {
-                Debug.Log("Striked");
                 strike();
             }
         }
