@@ -105,6 +105,11 @@ public class PlayerWallRun : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if ((LayerMask.GetMask(LayerMask.LayerToName(hit.gameObject.layer)) & layerMask) == 0)
+        {
+            return;
+        }
+
         if (!fpc.WallRun && jump && CanWallRun(hit.normal) && (fromGround || hit.collider.GetHashCode() != colliderHash))
         {
             Vector3 moveDirection = projectionMoveDirection(GetDirection(), hit.normal);

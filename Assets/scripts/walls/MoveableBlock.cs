@@ -9,6 +9,7 @@ public class MoveableBlock : MonoBehaviour
     [SerializeField] private LineCurve line;
     [SerializeField] private bool loop = true;
     [SerializeField] private bool fromStart = true;
+    [SerializeField] private bool waitFirstPoint = false;
 
     private const float speed = 1f;
     private float myPos = 0f;
@@ -16,7 +17,8 @@ public class MoveableBlock : MonoBehaviour
     private int nextIndex = 1;
     private bool turnBack = false;
     private bool moved;
-
+    private bool endWaitPoint;
+    
     private Rigidbody myRigidbody;
 
     void Start()
@@ -36,6 +38,17 @@ public class MoveableBlock : MonoBehaviour
         {
             StopMove();
         }
+
+        if (waitFirstPoint)
+        {
+            StartCoroutine(WaitTime(myIndex));
+        }
+        else
+        {
+            endWaitPoint = true;
+        }
+
+       
     }
 
     void FixedUpdate()
@@ -52,6 +65,13 @@ public class MoveableBlock : MonoBehaviour
         moved = true;
     }
 
+    IEnumerator WaitTime(int pos)
+    {
+        endWaitPoint = false;
+        yield return new WaitForSeconds(line.getWaitTime(pos));
+        endWaitPoint = true;
+    }
+
     public void Move(float dt)
     {
         if (line.isEnd(nextIndex))
@@ -60,32 +80,47 @@ public class MoveableBlock : MonoBehaviour
             return;
         }
 
-        
+        if (!endWaitPoint)
+        {
+            return;
+        }
 
-        myPos += dt;
+        
         while (myPos >= line.getTime(myIndex, nextIndex))
         {
             myPos -= line.getTime(myIndex, nextIndex);
             myIndex = nextIndex;
             nextIndex += turnBack ? -1 : 1;
+
+
+
             if (line.isEnd(nextIndex))
             {
                 if (loop)
                 {
                     turnBack = !turnBack;
                     nextIndex += turnBack ? -2 : 2;
+
+                    StartCoroutine(WaitTime(myIndex));
+                    myRigidbody.MovePosition(line.getConcretePosiion(myIndex));
+
                 }
                 else
                 {
                     StopMove();
-                    break;
+                    myRigidbody.MovePosition(line.getConcretePosiion(myIndex));
+                    return;
                 }
+            }
+            else
+            {
+                StartCoroutine(WaitTime(myIndex));
+                myRigidbody.MovePosition(line.getConcretePosiion(myIndex));
             }
         }
 
+        myPos += dt;
         myRigidbody.MovePosition(line.getPosition(myIndex, nextIndex, myPos / line.getTime(myIndex, nextIndex)));
-        transform.position = line.getPosition(myIndex, nextIndex, myPos / line.getTime(myIndex, nextIndex));
-
     }
 
     public void StopMove()

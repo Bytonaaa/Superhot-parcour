@@ -13,6 +13,11 @@ public class LineCurve
         return Vector3.Lerp(points[from], points[to], t);
     }
 
+    public Vector3 getConcretePosiion(int point)
+    {
+        return points[point];
+    }
+
     public float getTime(int from, int to)
     {
         return (from < to ?  time[from] : time[to]);

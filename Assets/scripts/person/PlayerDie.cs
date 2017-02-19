@@ -49,13 +49,20 @@ public class PlayerDie : MonoBehaviour
         {
             died = true;
             UIController.Controler.onDie();
-            BackgroundMusicControll.GetInstance.onDieVolume();
+            if (BackgroundMusicControll.GetInstance != null)
+            {
+                BackgroundMusicControll.GetInstance.onDieVolume();
+            }
             GetComponent<FirstPersonController>().enabled = false;
+            
         }
     }
 
     public void OnDestroy()
     {
-        BackgroundMusicControll.GetInstance.resetVolume();
+        if (BackgroundMusicControll.GetInstance != null)
+        {
+            BackgroundMusicControll.GetInstance.resetVolume();
+        }
     }
 }

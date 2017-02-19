@@ -77,6 +77,7 @@ public class UIController : MonoBehaviour
             throw new Exception("No GameObjet \"Restart Text\" or no component \"Text\"");
         }
 
+	    restartText.enabled = NEOHOTText.enabled = false;
 	    source = GetComponent<AudioSource>();
 	    if (source == null)
 	    {
@@ -96,6 +97,8 @@ public class UIController : MonoBehaviour
         }
 
 	    storyText.text = helpText.text = timeText.text = string.Empty;
+
+        GetComponent<Canvas>().worldCamera = Camera.main;
 
 	}
 
@@ -174,6 +177,8 @@ public class UIController : MonoBehaviour
                     =
                     storyText.enabled
                         = false;
+            NEOHOTText.enabled = restartText.enabled = true;
+
         }
     }
 
