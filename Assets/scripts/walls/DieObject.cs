@@ -22,8 +22,12 @@ public class DieObject : MonoBehaviour {
     {
         if (collider.CompareTag("Player"))
         {
-            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.collision);
-            collider.GetComponent<PlayerDie>().Die();
+            if (!collider.GetComponent<PlayerDie>().Died)
+            {
+                AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name,
+                    AnalyticsHelper.PlayerDeath.collision);
+                collider.GetComponent<PlayerDie>().Die();
+            }
         }
     }
 }

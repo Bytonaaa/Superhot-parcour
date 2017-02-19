@@ -22,11 +22,12 @@ class BackgroundMusicControll : MonoBehaviour
     private AudioSource myAudioSource;
     private string author;
     private string musicName;
-
+    private float mainVolume;
 
     void Start()
     {
         PlayMusic();
+        mainVolume = myAudioSource.volume;
     }
 
     void Awake()
@@ -94,6 +95,16 @@ class BackgroundMusicControll : MonoBehaviour
 
     }
 
+
+    public void onDieVolume()
+    {
+        myAudioSource.volume = mainVolume * 0.4f;
+    }
+
+    public void resetVolume()
+    {
+        myAudioSource.volume = mainVolume;
+    }
     
 
 }

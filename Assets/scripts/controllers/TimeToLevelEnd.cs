@@ -25,8 +25,15 @@ public class TimeToLevelEnd : MonoBehaviour
 	    LevelTime -= Time.deltaTime;
 	    if (LevelTime <= 0f)
 	    {
-            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.timeout);
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerDie>().Die();
+	        var temp = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerDie>();
+	        if (!temp.Died)
+	        {
+
+	            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name,
+	                AnalyticsHelper.PlayerDeath.timeout);
+	            temp.Die();
+	        }
+	        Destroy(this);
 	    }
 	}
 }

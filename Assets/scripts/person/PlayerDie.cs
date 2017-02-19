@@ -6,13 +6,33 @@ using UnityEngine.SceneManagement;
 public class PlayerDie : MonoBehaviour
 {
     private const float minYPos = -100f;
-	// Use this for initialization
-	void Start () {
-		
+
+    private bool died;
+
+    public bool Died
+    {
+        get { return died; }
+    }
+
+    // Use this for initialization
+	void Start ()
+	{
+	    died = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+	    if (died)
+	    {
+
+	        if (Input.GetKeyDown(KeyCode.R))
+	        {
+                GameController.RestartGame();
+            }
+	        return;
+	    }
+
+
 	    if (transform.position.y < minYPos)
 	    {
             AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.fallthrough);
@@ -21,8 +41,21 @@ public class PlayerDie : MonoBehaviour
 	}
 
 
+
+
     public void Die()
     {
-        GameController.RestartGame();
+        if (!died)
+        {
+            died = true;
+            UIController.Controler.onDie();
+            BackgroundMusicControll.GetInstance.onDieVolume();
+            GetComponent<FirstPersonController>().enabled = false;
+        }
+    }
+
+    public void OnDestroy()
+    {
+        BackgroundMusicControll.GetInstance.resetVolume();
     }
 }

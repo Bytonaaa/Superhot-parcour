@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class UIController : MonoBehaviour
 {
     public static UIController Controler { get; private set; }
@@ -13,8 +15,14 @@ public class UIController : MonoBehaviour
     [SerializeField] private Text timeText;
     [SerializeField] private Text helpText;
     [SerializeField] private Text storyText;
+    [SerializeField] private Text NEOHOTText;
+    [SerializeField] private AudioClip neo;
+    [SerializeField] private AudioClip hot;
+    [SerializeField] private Text restartText;
+    [SerializeField] private float alphaRestartTimeSpeed = 2f;
 
-
+    private bool restart;
+    private AudioSource source;
     private TimeToLevelEnd time;
 
     private Text getTextFromObject(string name)
@@ -31,7 +39,9 @@ public class UIController : MonoBehaviour
     }
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
+	    restart = false;
 	    if (isController)
 	    {
 	        Destroy(this);
@@ -45,19 +55,39 @@ public class UIController : MonoBehaviour
 	    {
 	        throw new Exception("No GameObjet \"Time Text\" or no component \"Text\"");
 
-	    } else if (helpText == null && (helpText = getTextFromObject("Help Text")) == null)
+	    }
+
+        if (helpText == null && (helpText = getTextFromObject("Help Text")) == null)
 	    {
             throw new Exception("No GameObjet \"Help Text\" or no component \"Text\"");
-        } else if (storyText == null && (storyText = getTextFromObject("Story Text")) == null)
+        }
+
+        if (storyText == null && (storyText = getTextFromObject("Story Text")) == null)
 	    {
             throw new Exception("No GameObjet \"Story Text\" or no component \"Text\"");
         }
+
+        if (NEOHOTText == null && (NEOHOTText = getTextFromObject("NEOHOT Text")) == null)
+        {
+            throw new Exception("No GameObjet \"NEOHOT Text\" or no component \"Text\"");
+        }
+
+        if (restartText == null && (restartText = getTextFromObject("Restart Text")) == null)
+        {
+            throw new Exception("No GameObjet \"Restart Text\" or no component \"Text\"");
+        }
+
+	    source = GetComponent<AudioSource>();
+	    if (source == null)
+	    {
+	        source = gameObject.AddComponent<AudioSource>();
+	    }
 
 
         var temp = FindObjectsOfType<TimeToLevelEnd>();
         if (temp.Length > 1)
         {
-            throw new Exception("No more then 1 \"TimeToLevelEnd\" script");
+            throw new Exception("more then 1 \"TimeToLevelEnd\" script");
         }
 
         if (temp.Length > 0)
@@ -71,7 +101,7 @@ public class UIController : MonoBehaviour
 
     void Update()
     {
-        if (time != null)
+        if (!restart && time != null)
         {
             timeText.text = string.Format("{0:F2}", time.LevelTime);
         }
@@ -94,6 +124,59 @@ public class UIController : MonoBehaviour
         storyText.text = string.Empty;
     }
 
+    IEnumerator restartTextMoved()
+    {
+        float a = 0f;
+       
+        bool up = true;
+        while (true)
+        {
+            if ((a > 1f && up) || (!up && a < 0f))
+            {
+                a = Mathf.Clamp01(a);
+                up = !up;
+            }
+
+            restartText.color  = new Color(restartText.color.r, restartText.color.g, restartText.color.b, a);
+
+            yield return new WaitForEndOfFrame();
+            a += (up ? 1 : -1) * alphaRestartTimeSpeed*Time.unscaledDeltaTime;
+        }
+    }
+
+    IEnumerator hotMoved()
+    {
+        while (true)
+        {
+            NEOHOTText.text = "neo";
+            source.PlayOneShot(neo);
+            yield return new WaitForSecondsRealtime(neo.length);
+
+            NEOHOTText.text = "hot";
+            source.PlayOneShot(hot);
+            yield return new WaitForSecondsRealtime(hot.length);
+        }
+
+    }
+
+    public void onDie()
+    {
+        if (!restart)
+        {
+            restart
+                = true;
+
+            StartCoroutine(restartTextMoved());
+            StartCoroutine(hotMoved());
+            helpText.enabled
+                =
+                timeText.enabled
+                    =
+                    storyText.enabled
+                        = false;
+        }
+    }
+
     public void PlayStoryText(string[] text, float delay)
     {
         StopCoroutine("StoryText");
@@ -102,6 +185,7 @@ public class UIController : MonoBehaviour
 
     public void DisplayHelpText(string text)
     {
+
         helpText.text = text ?? string.Empty;
     }
 

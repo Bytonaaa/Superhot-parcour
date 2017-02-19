@@ -54,8 +54,12 @@ public class BulletMoveable : MonoBehaviour
     {
         if (onExit && enemyCollider.CompareTag("Player"))
         {
-            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name, AnalyticsHelper.PlayerDeath.bulletCollision);
-            enemyCollider.GetComponent<PlayerDie>().Die();
+            if (!enemyCollider.GetComponent<PlayerDie>().Died)
+            {
+                AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name,
+                    AnalyticsHelper.PlayerDeath.bulletCollision);
+                enemyCollider.GetComponent<PlayerDie>().Die();
+            }
         }
     }
 
