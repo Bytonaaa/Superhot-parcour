@@ -11,7 +11,7 @@ public class TurretStrike : MonoBehaviour
     [SerializeField] private GameObject bullet;
     [SerializeField] private float radius = 10f;
     [SerializeField] private float reloadTime;
-    [SerializeField] private Transform InstantiateTransform;
+    [SerializeField] private Transform[] InstantiatesTransform;
 
     private float time = 0f;
 
@@ -51,15 +51,38 @@ public class TurretStrike : MonoBehaviour
     {
         if (player != null)
         {
-            transform.LookAt(player.transform.position + Vector3.down * player.GetComponent<CharacterController>().height*.5f);
+            transform.LookAt(player.transform.position + Vector3.down * player.GetComponent<CharacterController>().height*.15f);
         }
+    }
+
+
+    private int lastInst = -1;
+
+    private Vector3 getRandomBulletPosition()
+    {
+        if (InstantiatesTransform.Length <= 1)
+        {
+            return InstantiatesTransform.Length == 0
+                ? transform.position
+                : InstantiatesTransform[0].position;
+        }
+        int temp = Random.Range(0, InstantiatesTransform.Length);
+        while (temp == lastInst)
+        {
+            temp = Random.Range(0, InstantiatesTransform.Length);
+        }
+        lastInst = temp;
+        return InstantiatesTransform[lastInst].position;
     }
 
     private void strike()
     {
         if (bullet != null)
         {
-            Instantiate(bullet, InstantiateTransform ? InstantiateTransform.position : transform.position, transform.rotation);
+            var velocity = player.GetComponent<CharacterController>().velocity;
+            velocity.y = 0f;
+            var pos = getRandomBulletPosition();
+            Instantiate(bullet, pos , Quaternion.LookRotation(player.transform.position + velocity.normalized * 2f - pos));
         }
         time = reloadTime;
     }

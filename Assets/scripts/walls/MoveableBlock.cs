@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class MoveableBlock : MonoBehaviour
+public class MoveableBlock : MonoBehaviour, IClickable
 {
 
     [SerializeField] private LineCurve line;
@@ -59,6 +59,17 @@ public class MoveableBlock : MonoBehaviour
         } 
     }
 
+    public void Click()
+    {
+        if (moved)
+        {
+            StopMove();
+        }
+        else
+        {
+            StartMove();
+        }
+    }
 
     public void StartMove()
     {

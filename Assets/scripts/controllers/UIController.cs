@@ -53,27 +53,31 @@ public class UIController : MonoBehaviour
 
 	    if (timeText == null && (timeText = getTextFromObject("Time Text")) == null)
 	    {
-	        throw new Exception("No GameObjet \"Time Text\" or no component \"Text\"");
-
+            enabled = false;
+            throw new Exception("No GameObjet \"Time Text\" or no component \"Text\"");
 	    }
 
         if (helpText == null && (helpText = getTextFromObject("Help Text")) == null)
 	    {
+            enabled = false;
             throw new Exception("No GameObjet \"Help Text\" or no component \"Text\"");
         }
 
         if (storyText == null && (storyText = getTextFromObject("Story Text")) == null)
 	    {
+            enabled = false;
             throw new Exception("No GameObjet \"Story Text\" or no component \"Text\"");
         }
 
         if (NEOHOTText == null && (NEOHOTText = getTextFromObject("NEOHOT Text")) == null)
         {
+            enabled = false;
             throw new Exception("No GameObjet \"NEOHOT Text\" or no component \"Text\"");
         }
 
         if (restartText == null && (restartText = getTextFromObject("Restart Text")) == null)
         {
+            enabled = false;
             throw new Exception("No GameObjet \"Restart Text\" or no component \"Text\"");
         }
 
@@ -88,6 +92,7 @@ public class UIController : MonoBehaviour
         var temp = FindObjectsOfType<TimeToLevelEnd>();
         if (temp.Length > 1)
         {
+            enabled = false;
             throw new Exception("more then 1 \"TimeToLevelEnd\" script");
         }
 
@@ -164,7 +169,7 @@ public class UIController : MonoBehaviour
 
     public void onDie()
     {
-        if (!restart)
+        if (!restart && enabled)
         {
             restart
                 = true;

@@ -115,8 +115,7 @@ public class PlayerSeat : MonoBehaviour
             }
 
             
-        }
-        else if (IsSeating)
+        } else if (IsSeating && CanStandUp())
         {
             IsSeating = false;
             characterController.height = originalScale;
@@ -138,5 +137,20 @@ public class PlayerSeat : MonoBehaviour
     private bool GetSeatButton()
     {
         return Input.GetKey(seatKey);
+    }
+
+
+    private bool CanStandUp()
+    {
+        if (!IsSeating)
+        {
+            return true;
+        }
+
+
+        return (
+            Physics.OverlapCapsule(transform.position + Vector3.up*originalScale*0.5f,
+                transform.position, characterController.radius, ~LayerMask.GetMask("Player"),
+                QueryTriggerInteraction.Ignore).Length == 0);   
     }
 }
