@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using UnityEditor;
 using UnityEngine;
 using UnityStandardAssets.Characters.FirstPerson;
 using UnityStandardAssets.CrossPlatformInput;
@@ -86,5 +87,14 @@ public class PlayerTurn : MonoBehaviour
         fpc.MouseLook.Init(transform, defaultCamera.transform);
         flag = true;
         _time = minTime;
+    }
+
+    private IEnumerator TurningUp()
+    {
+        Quaternion up = Quaternion.Euler(-90, 0, 0);
+        float speed = 1f;
+
+        Quaternion.RotateTowards(transform.rotation, up, speed);
+        yield break;
     }
 }
