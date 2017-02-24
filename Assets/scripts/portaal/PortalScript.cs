@@ -16,8 +16,17 @@ public class PortalScript : MonoBehaviour {
     {
         if (other.CompareTag("Player"))
         {
-            AnalyticsHelper.LogSceneLoadEvent(nextLevel);
-            GameController.LoadLevel(nextLevel);
+            other.GetComponent<PlayerTurn>().setWinTurn();
+            StartCoroutine(loading());
         }
     }
+
+    private IEnumerator loading()
+    {
+        yield return new WaitForSecondsRealtime(3f);
+        AnalyticsHelper.LogSceneLoadEvent(nextLevel);
+        GameController.LoadLevel(nextLevel);
+    }
+
 }
+

@@ -8,11 +8,12 @@ public class PlayerDie : MonoBehaviour
     private const float minYPos = -100f;
 
     private bool died;
-
+    public bool win { get; set; }
     public bool Died
     {
-        get { return died; }
+        get { return died || win; }
     }
+    
 
     // Use this for initialization
 	void Start ()
@@ -54,7 +55,7 @@ public class PlayerDie : MonoBehaviour
                 BackgroundMusicControll.GetInstance.onDieVolume();
             }
             GetComponent<FirstPersonController>().enabled = false;
-            
+            GetComponent<PlayerTurn>().setDieTurn();
         }
     }
 

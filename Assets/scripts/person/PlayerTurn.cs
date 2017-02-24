@@ -58,6 +58,23 @@ public class PlayerTurn : MonoBehaviour
         return Input.GetKeyDown(TurnButton);
     }
 
+    public void setDieTurn()
+    {
+        fpc.enabled = false;
+        StartCoroutine(TurningUp(0.02f));
+        Destroy(GetComponent<Rigidbody>());
+        GetComponent<CharacterController>().enabled = false;
+        StartCoroutine(MoveDown());
+    }
+
+    public void setWinTurn()
+    {
+
+        fpc.enabled = false;
+        GetComponent<PlayerDie>().win = true;
+        StartCoroutine(TurningUp());
+    }
+
     private IEnumerator Turning(Vector3 forwardFrom, Vector3 axis)
     {
         fpc.setJump();
@@ -89,12 +106,36 @@ public class PlayerTurn : MonoBehaviour
         _time = minTime;
     }
 
-    private IEnumerator TurningUp()
+    private IEnumerator TurningUp(float speedCnst = 1f)
     {
+        
         Quaternion up = Quaternion.Euler(-90, 0, 0);
-        float speed = 1f;
+        float speed = 0.0005f, time = 0f;
+        var from = transform.rotation;
+        var to = Vector3.up;
 
-        Quaternion.RotateTowards(transform.rotation, up, speed);
-        yield break;
+        while (true)
+        {
+            //var temp = Vector3.Lerp(from, to, time*speed); 
+            transform.rotation = Quaternion.Lerp(from, up, time * speed * speedCnst);
+            //up = Quaternion.Euler(-90, time, 0);
+            yield return new WaitForEndOfFrame();
+            time += Time.unscaledTime;
+        }
+    }
+
+
+    private IEnumerator MoveDown()
+    {
+        float time = 0f;
+        Vector3 dir = -(transform.forward + transform.up).normalized;
+        float speed = 0.05f;
+
+        while (time <= 2f)
+        {
+            yield return new WaitForEndOfFrame();
+            transform.position += dir * speed * Time.unscaledTime;
+            time += Time.unscaledTime;
+        }
     }
 }

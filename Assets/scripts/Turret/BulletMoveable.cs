@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -54,7 +55,8 @@ public class BulletMoveable : MonoBehaviour
     {
         if (onExit && enemyCollider.CompareTag("Player"))
         {
-            if (!enemyCollider.GetComponent<PlayerDie>().Died)
+            var temp = enemyCollider.GetComponent<PlayerDie>();
+            if (temp && !temp.Died)
             {
                 AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name,
                     AnalyticsHelper.PlayerDeath.bulletCollision);

@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ExitFromGame : MonoBehaviour
@@ -27,30 +29,65 @@ public class ExitFromGame : MonoBehaviour
 	        {
 	            throw new Exception("No exit button");
 	        }
+
 	    }
 
-        ExitButton.onClick.AddListener(OnClick);
-	    ExitButton.targetGraphic.enabled = false;
+
+	    ExitButton.targetGraphic.enabled = isExitOpen = false;
+
+
+	    SceneManager.sceneLoaded += disable;
 	}
-	
+
+
+    private void disable(Scene scene, LoadSceneMode mode)
+    {
+        ExitButton.targetGraphic.enabled = isExitOpen = false;
+    }
+
+
+    private IEnumerator waitEsc()
+    {
+        float time = 0f;
+        ExitButton.targetGraphic.enabled = isExitOpen = true;
+        while (time <= 2f) 
+        {
+            
+            yield return new WaitForEndOfFrame();
+            if (pressed)
+            {
+                OnClick();
+            }
+            time += Time.unscaledDeltaTime;
+            
+        }
+
+        ExitButton.targetGraphic.enabled = isExitOpen = false;
+    }
+
+    private bool pressed = false;
 	// Update is called once per frame
-	void Update () {
-	    if (Input.GetKeyDown(KeyCode.Escape))
-	    {
-	        if (isExitOpen)
-	        {
-	            ExitButton.targetGraphic.enabled = isExitOpen = false;
-	        }
-	        else
-	        {
-	            ExitButton.targetGraphic.enabled = isExitOpen = true;
-	        }
-	    }
+	void Update ()
+	{
+
+	    pressed = false;
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            pressed = true;
+           
+        }
+
+        if (!isExitOpen && pressed)
+        {
+            pressed = false;
+            StartCoroutine(waitEsc());
+        }
 	}
+
 
     private void OnClick()
     {
-
+        Debug.Log("Exit from game");
         Application.Quit();
     }
 

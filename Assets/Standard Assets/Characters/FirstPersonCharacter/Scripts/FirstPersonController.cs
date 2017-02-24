@@ -314,6 +314,12 @@ public class FirstPersonController : MonoBehaviour
         ProgressStepCycle(speed);
         UpdateCameraPosition(speed);
 
+        
+    }
+
+
+    private void LateUpdate()
+    {
         m_MouseLook.UpdateCursorLock();
     }
 

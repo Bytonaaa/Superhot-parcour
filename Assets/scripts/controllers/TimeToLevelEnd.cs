@@ -26,7 +26,7 @@ public class TimeToLevelEnd : MonoBehaviour
 	    if (LevelTime <= 0f)
 	    {
 	        var temp = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerDie>();
-	        if (!temp.Died)
+	        if (temp && !temp.Died)
 	        {
 
 	            AnalyticsHelper.LogSceneRestartEvent(SceneManager.GetActiveScene().name,

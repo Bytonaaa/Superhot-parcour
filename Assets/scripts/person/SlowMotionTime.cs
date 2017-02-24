@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController), typeof(FirstPersonController))]
 public class SlowMotionTime : MonoBehaviour
 {
     [SerializeField] private float minSpeed = 0f;
@@ -10,13 +11,15 @@ public class SlowMotionTime : MonoBehaviour
 
 
     private CharacterController controller;
+    private FirstPersonController fpc;
     private float mainTimeScale;
     void Start ()
 	{
 	    controller = GetComponent<CharacterController>();
-	    if (controller == null)
+        fpc = GetComponent<FirstPersonController>();
+	    if (controller == null || fpc == null)
 	    {
-	        throw new Exception("No characterControoller");
+	        throw new Exception("No characterControoller or FirstPersonController");
 	    }
         mainTimeScale = Time.timeScale;
         slowed = false;
@@ -27,7 +30,7 @@ public class SlowMotionTime : MonoBehaviour
     private bool slowed = false;
 
 	void Update () {
-	    if (controller.isGrounded && controller.velocity.sqrMagnitude <= minSpeed)
+	    if (fpc.enabled && controller.isGrounded && controller.velocity.sqrMagnitude <= minSpeed)
 	    {
 	        if (!slowed)
 	        {
