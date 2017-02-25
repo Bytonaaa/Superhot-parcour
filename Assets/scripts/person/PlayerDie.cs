@@ -8,7 +8,24 @@ public class PlayerDie : MonoBehaviour
     private const float minYPos = -100f;
 
     private bool died;
-    public bool win { get; set; }
+    private bool _win;
+
+    public bool win
+    {
+        get
+        {
+            return _win;
+        }
+        set
+        {
+            if (value)
+            {
+                _win = value;
+                UIController.Controler.DeleteTime();
+            }
+        }
+    }
+
     public bool Died
     {
         get { return died || win; }

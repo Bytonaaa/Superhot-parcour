@@ -106,6 +106,11 @@ public class UIController : MonoBehaviour
 
 	}
 
+    public void DeleteTime()
+    {
+        timeText.enabled = false;
+    }
+
     void Update()
     {
         if (!restart && time != null)
@@ -170,6 +175,7 @@ public class UIController : MonoBehaviour
     {
         if (!restart && enabled)
         {
+
             restart
                 = true;
 
