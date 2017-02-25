@@ -94,8 +94,7 @@ public class PlayerWallRun : MonoBehaviour
     private bool CanWallRun(Vector3 normal)
     {
         return !characterController.isGrounded
-               && Vector3.Dot(fpc.MoveDirection, -normal) >= 0
-               && Vector3.Dot(GetDirection(), -normal) >= 0;
+               && Vector3.Dot(fpc.MoveDirection + GetDirection(), -normal) >= 0;
     }
 
     private Vector3 GetDirection()

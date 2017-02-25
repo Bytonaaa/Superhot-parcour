@@ -293,7 +293,7 @@ public class FirstPersonController : MonoBehaviour
         var flag = false;
         foreach (var VARIABLE in colliders)
         {
-            if (VARIABLE.gameObject.GetComponent("MoveableBlock"))
+            if (VARIABLE.gameObject.GetComponent("MoveableBlock") || LayerMask.LayerToName(VARIABLE.gameObject.layer).CompareTo("WallRide") == 0)
             {
                 if (playerScaleFactor.parent == null ||
                     playerScaleFactor.parent.GetHashCode() != VARIABLE.transform.GetHashCode())
