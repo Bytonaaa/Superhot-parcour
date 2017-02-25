@@ -61,7 +61,7 @@ public class PlayerTurn : MonoBehaviour
     public void setDieTurn()
     {
         fpc.enabled = false;
-        StartCoroutine(TurningUp(0.02f));
+        StartCoroutine(TurningUp(0.05f));
         Destroy(GetComponent<Rigidbody>());
         GetComponent<CharacterController>().enabled = false;
         StartCoroutine(MoveDown());
@@ -110,7 +110,7 @@ public class PlayerTurn : MonoBehaviour
     {
         
         Quaternion up = Quaternion.Euler(-90, 0, 0);
-        float speed = 0.0005f, time = 0f;
+        float speed = 0.35f, time = 0f;
         var from = transform.rotation;
         var to = Vector3.up;
 
@@ -120,7 +120,7 @@ public class PlayerTurn : MonoBehaviour
             transform.rotation = Quaternion.Lerp(from, up, time * speed * speedCnst);
             //up = Quaternion.Euler(-90, time, 0);
             yield return new WaitForEndOfFrame();
-            time += Time.unscaledTime;
+            time += Time.unscaledDeltaTime;
         }
     }
 
@@ -128,14 +128,14 @@ public class PlayerTurn : MonoBehaviour
     private IEnumerator MoveDown()
     {
         float time = 0f;
-        Vector3 dir = -(transform.forward + transform.up).normalized;
-        float speed = 0.05f;
+        Vector3 dir = Vector3.down;
+        float speed = 0.1f;
 
-        while (time <= 2f)
+        while (time <= 5f)
         {
             yield return new WaitForEndOfFrame();
-            transform.position += dir * speed * Time.unscaledTime;
-            time += Time.unscaledTime;
+            transform.Translate(dir * speed * Time.unscaledDeltaTime);
+            time += Time.unscaledDeltaTime;
         }
     }
 }

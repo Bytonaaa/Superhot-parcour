@@ -82,7 +82,7 @@ public class TurretStrike : MonoBehaviour
             var velocity = player.GetComponent<CharacterController>().velocity;
             velocity.y = 0f;
             var pos = getRandomBulletPosition();
-            Instantiate(bullet, pos , Quaternion.LookRotation(player.transform.position + velocity.normalized * 2f - pos));
+            Instantiate(bullet, pos , Quaternion.LookRotation(player.transform.position + (velocity.sqrMagnitude < 1f ? velocity : velocity.normalized) * 2f - pos));
         }
         time = reloadTime;
     }

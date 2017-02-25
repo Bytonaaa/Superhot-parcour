@@ -131,7 +131,9 @@ public class MoveableBlock : MonoBehaviour, IClickable
         }
 
         myPos += dt;
-        myRigidbody.MovePosition(line.getPosition(myIndex, nextIndex, myPos / line.getTime(myIndex, nextIndex)));
+        var temp = line.getPosition(myIndex, nextIndex, myPos/line.getTime(myIndex, nextIndex));
+        myRigidbody.MovePosition(temp);
+        transform.position = temp;
     }
 
     public void StopMove()
