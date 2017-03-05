@@ -48,7 +48,7 @@ public class MoveableBlock : MonoBehaviour, IClickable
             endWaitPoint = true;
         }
 
-       
+
     }
 
     void FixedUpdate()

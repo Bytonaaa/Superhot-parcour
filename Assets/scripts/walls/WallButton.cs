@@ -4,15 +4,17 @@ using System.Linq;
 using UnityEngine;
 
 
-[RequireComponent(typeof(Collider), typeof(NeonEffect))]
+[RequireComponent(typeof(Collider))]
 public class WallButton : MonoBehaviour
 {
 
     [SerializeField] private GameObject[] targets;
+    
     [SerializeField] private Color pressedLineColor;
     [SerializeField] private Color pressedFillColor;
     [SerializeField] private float pressedLineSize;
 
+    [SerializeField] private bool CanBePressed;
     [SerializeField] private bool CanBePressedAgain;
 
     private bool isPressed;
@@ -36,20 +38,26 @@ public class WallButton : MonoBehaviour
     void OnTriggerStay(Collider playerCollider)
     {
 
-        if (canCheck && (Input.GetKeyDown(KeyCode.T) || Input.GetMouseButtonDown(0)) && playerCollider.isTrigger  && playerCollider.CompareTag("Player"))
+        if (canCheck && (!CanBePressed || Input.GetKeyDown(KeyCode.T) || Input.GetMouseButtonDown(0)) && playerCollider.isTrigger  && playerCollider.CompareTag("Player"))
         {
 
-            if (CanBePressedAgain && isPressed)
+            if (CanBePressed && CanBePressedAgain && isPressed)
             {
                 isPressed = false;
-                effect.Reset();
+                if (effect)
+                {
+                    effect.Reset();
+                }
                 canCheck = false;
             }
             else if (!isPressed)
             {
                 canCheck = false;
                 isPressed = true;
-                effect.setNeonLine(pressedLineColor, pressedFillColor, pressedLineSize);
+                if (effect)
+                {
+                    effect.setNeonLine(pressedLineColor, pressedFillColor, pressedLineSize);
+                }
             }
             else
             {

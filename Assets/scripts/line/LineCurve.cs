@@ -5,7 +5,7 @@ using UnityEngine;
 public class LineCurve
 {
     [SerializeField] private Vector3[] points;
-    [SerializeField] [Range(0.1f, 15f)] private float[] time;
+    [SerializeField] [Range(0.1f, 60f)] private float[] time;
     [SerializeField] [Range(0f, 15f)] private float[] waitTime;
 
     public Vector3 getPosition(int from, int to, float t)
