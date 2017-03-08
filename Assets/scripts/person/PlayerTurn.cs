@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using UnityEditor;
 using UnityEngine;
-using UnityStandardAssets.Characters.FirstPerson;
-using UnityStandardAssets.CrossPlatformInput;
+
 
 public class PlayerTurn : MonoBehaviour
 {
