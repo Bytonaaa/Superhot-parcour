@@ -1,34 +1,22 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameController {
-
-    private GameController()
-    {
-        
-    }
-
+public class GameController
+{
     public static void RestartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    [Obsolete("Method is deprecated, please use SceneLoader.LoadScene() instead.", true)]
     public static void GoToMain()
     {
-        SceneManager.LoadScene("main");
+        SceneLoader.LoadScene("main");
     }
 
+    [Obsolete("Method is deprecated, please use SceneLoader.LoadScene() instead.", true)]
     public static void LoadLevel(string level)
     {
-        try
-        {
-            SceneManager.LoadScene(level);
-        } catch(Exception)
-        {
-            GoToMain();
-        }
+        SceneLoader.LoadScene(level);
     }
 }
